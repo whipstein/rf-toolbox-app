@@ -1,3 +1,4 @@
+#![allow(dead_code, unused_variables, unused_imports)]
 use crate::rf_utils::{ComplexReturn, Unit};
 use num_complex::Complex;
 use std::str::FromStr;
@@ -105,8 +106,6 @@ pub fn copy_ccll(
 #[tauri::command(rename_all = "snake_case")]
 pub fn paste_impedance(app: AppHandle) -> Result<String, String> {
     let val = app.clipboard().read_text().unwrap();
-
-    println!("{}", val);
 
     Ok(val)
 }

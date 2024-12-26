@@ -35,7 +35,7 @@ function printVal(val, unit, suffix, sd) {
 function calcMatch() {
     getVals();
 
-    invoke("calc_vals", {re: re, im: im, imp: numFormat, z0: z0, freq: freq, f_scale: freqUnit, r_scale: "", c_scale: capUnit})
+    invoke("calc_impedance", {re: re, im: im, imp: numFormat, z0: z0, freq: freq, f_scale: freqUnit, r_scale: "", c_scale: capUnit})
         .then((result) => {
             current = result;
 
@@ -68,14 +68,6 @@ function calcMatch() {
             gammaMaValEl.innerHTML = txt;
             rValEl.innerHTML = txt;
             cValEl.innerHTML = txt;
-            zRe = Number.NaN;
-            zIm = Number.NaN;
-            gammaRe = Number.NaN;
-            gammaIm = Number.NaN;
-            gammaMag = Number.NaN;
-            gammaAng = Number.NaN;
-            r = Number.NaN;
-            c = Number.NaN;
         });
 }
 
@@ -129,7 +121,7 @@ function getVals() {
 
 let sd = 2;
 let numFormat, freqUnit, capUnit, z0, freq, re, im;
-let numFormatEl, capUnitEl, freqUnitEl, freqEl, z0El, sigDigitsEl, s11ReLabelEl, s11ReEl, s11ImLabelEl, s11ImEl, gCopyEl, gMaCopyEl, zCopyEl, rcCopyEl, points;
+let numFormatEl, capUnitEl, freqUnitEl, freqEl, z0El, sigDigitsEl, s11ReLabelEl, s11ReEl, s11ImLabelEl, s11ImEl, gCopyEl, gMaCopyEl, zCopyEl, rcCopyEl;
 let zValEl, gammaRiValEl, gammaMaValEl, rValEl, cValEl;
 let current;
 
