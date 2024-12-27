@@ -678,33 +678,7 @@ pub fn calc_hp_ell_cl_w_q(
         let rl = zl.re;
         let xl = zl.im;
         q_net = (rp / rs - 1.0).sqrt();
-        let xp1 = (q
-            * (xl.powi(4) - 4.0 * q * rs * xl.powi(3)
-                + (-(4.0 * rs.powi(2)) + 4.0 * q.powi(2) * rl * rs + 2.0 * rl.powi(2))
-                    * xl.powi(2)
-                + (8.0 * q * rl * rs.powi(2) - 4.0 * q * rl.powi(2) * rs) * xl
-                - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2)
-                + 4.0 * q.powi(2) * rl.powi(3) * rs
-                + rl.powi(4))
-            .sqrt()
-            + q * xl.powi(2)
-            - 2.0 * q.powi(2) * rs * xl
-            - 2.0 * q * rl * rs
-            + q * rl.powi(2))
-            / ((2.0 * q.powi(2) + 2.0) * rs + (-(2.0 * q.powi(2)) - 2.0) * rl);
-        let xc1 = -(((2.0 * xl - 2.0 * q * rl) * xs
-            + (xl.powi(4) - 4.0 * q * rs * xl.powi(3)
-                + (-(4.0 * rs.powi(2)) + 4.0 * q.powi(2) * rl * rs + 2.0 * rl.powi(2))
-                    * xl.powi(2)
-                + (8.0 * q * rl * rs.powi(2) - 4.0 * q * rl.powi(2) * rs) * xl
-                - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2)
-                + 4.0 * q.powi(2) * rl.powi(3) * rs
-                + rl.powi(4))
-            .sqrt()
-            + xl.powi(2)
-            + rl.powi(2))
-            / (2.0 * xl - 2.0 * q * rl));
-        let xp2 = -((q
+        let xp = -((q
             * (xl.powi(4) - 4.0 * q * rs * xl.powi(3)
                 + (-(4.0 * rs.powi(2)) + 4.0 * q.powi(2) * rl * rs + 2.0 * rl.powi(2))
                     * xl.powi(2)
@@ -718,7 +692,7 @@ pub fn calc_hp_ell_cl_w_q(
             + 2.0 * q * rl * rs
             - q * rl.powi(2))
             / ((2.0 * q.powi(2) + 2.0) * rs + (-(2.0 * q.powi(2)) - 2.0) * rl));
-        let xc2 = ((2.0 * q * rl - 2.0 * xl) * xs
+        let xc = ((2.0 * q * rl - 2.0 * xl) * xs
             + (xl.powi(4) - 4.0 * q * rs * xl.powi(3)
                 + (-(4.0 * rs.powi(2)) + 4.0 * q.powi(2) * rl * rs + 2.0 * rl.powi(2))
                     * xl.powi(2)
@@ -731,15 +705,9 @@ pub fn calc_hp_ell_cl_w_q(
             - rl.powi(2))
             / (2.0 * xl - 2.0 * q * rl);
 
-        if xc1 >= 0.0 || xp1 < 0.0 {
-            l = xp2 / w;
-            c = -1.0 / (w * xc2);
-            sol = 2;
-        } else {
-            l = xp1 / w;
-            c = -1.0 / (w * xc1);
-            sol = 1;
-        }
+        l = xp / w;
+        c = -1.0 / (w * xc);
+        sol = 1;
 
         c = scale(c, c_scale);
         l = scale(l, l_scale);
@@ -866,32 +834,7 @@ pub fn calc_hp_ell_lc_w_q(
         let rl = zl.re;
         let xl = zl.im;
         q_net = (rp / rs - 1.0).sqrt();
-        let xp1 = -((q
-            * (xs.powi(4) - 4.0 * q * rl * xs.powi(3)
-                + (2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs - 4.0 * rl.powi(2)) * xs.powi(2)
-                + (8.0 * q * rl.powi(2) * rs - 4.0 * q * rl * rs.powi(2)) * xs
-                + rs.powi(4)
-                + 4.0 * q.powi(2) * rl * rs.powi(3)
-                - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2))
-            .sqrt()
-            + q * xs.powi(2)
-            - 2.0 * q.powi(2) * rl * xs
-            + q * rs.powi(2)
-            - 2.0 * q * rl * rs)
-            / ((2.0 * q.powi(2) + 2.0) * rs + (-(2.0 * q.powi(2)) - 2.0) * rl));
-        let xc1 = -(((xs.powi(4) - 4.0 * q * rl * xs.powi(3)
-            + (2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs - 4.0 * rl.powi(2)) * xs.powi(2)
-            + (8.0 * q * rl.powi(2) * rs - 4.0 * q * rl * rs.powi(2)) * xs
-            + rs.powi(4)
-            + 4.0 * q.powi(2) * rl * rs.powi(3)
-            - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2))
-        .sqrt()
-            + xs.powi(2)
-            + 2.0 * xl * xs
-            - 2.0 * q * rs * xl
-            + rs.powi(2))
-            / (2.0 * xs - 2.0 * q * rs));
-        let xp2 = (q
+        let xp = (q
             * (xs.powi(4) - 4.0 * q * rl * xs.powi(3)
                 + (2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs - 4.0 * rl.powi(2)) * xs.powi(2)
                 + (8.0 * q * rl.powi(2) * rs - 4.0 * q * rl * rs.powi(2)) * xs
@@ -904,7 +847,7 @@ pub fn calc_hp_ell_lc_w_q(
             - q * rs.powi(2)
             + 2.0 * q * rl * rs)
             / ((2.0 * q.powi(2) + 2.0) * rs + (-(2.0 * q.powi(2)) - 2.0) * rl);
-        let xc2 = ((xs.powi(4) - 4.0 * q * rl * xs.powi(3)
+        let xc = ((xs.powi(4) - 4.0 * q * rl * xs.powi(3)
             + (2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs - 4.0 * rl.powi(2)) * xs.powi(2)
             + (8.0 * q * rl.powi(2) * rs - 4.0 * q * rl * rs.powi(2)) * xs
             + rs.powi(4)
@@ -917,15 +860,9 @@ pub fn calc_hp_ell_lc_w_q(
             - rs.powi(2))
             / (2.0 * xs - 2.0 * q * rs);
 
-        if xc1 >= 0.0 || xp1 < 0.0 {
-            l = xp2 / w;
-            c = -1.0 / (w * xc2);
-            sol = 2;
-        } else {
-            l = xp1 / w;
-            c = -1.0 / (w * xc1);
-            sol = 1;
-        }
+        l = xp / w;
+        c = -1.0 / (w * xc);
+        sol = 1;
 
         c = scale(c, c_scale);
         l = scale(l, l_scale);
@@ -1035,34 +972,7 @@ pub fn calc_lp_ell_cl_w_q(
         let rl = zl.re;
         let xl = zl.im;
         q_net = (rp / zl.re - 1.0).sqrt();
-        let xp1 = -((q
-            * (xs.powi(4)
-                + (4.0 * q * rs * xl + 2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs)
-                    * xs.powi(2)
-                - 4.0 * rs.powi(2) * xl.powi(2)
-                + (4.0 * q * rs.powi(3) - 8.0 * q * rl * rs.powi(2)) * xl
-                + rs.powi(4)
-                + 4.0 * q.powi(2) * rl * rs.powi(3)
-                - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2))
-            .sqrt()
-            + q * xs.powi(2)
-            + 2.0 * q.powi(2) * rs * xl
-            + q * rs.powi(2)
-            - 2.0 * q * rl * rs)
-            / ((2.0 * q.powi(2) + 2.0) * rs));
-        let xc1 = -(((xs.powi(4)
-            + (4.0 * q * rs * xl + 2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs) * xs.powi(2)
-            - 4.0 * rs.powi(2) * xl.powi(2)
-            + (4.0 * q * rs.powi(3) - 8.0 * q * rl * rs.powi(2)) * xl
-            + rs.powi(4)
-            + 4.0 * q.powi(2) * rl * rs.powi(3)
-            - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2))
-        .sqrt()
-            + xs.powi(2)
-            + (2.0 * xl + 2.0 * q * rl) * xs
-            + rs.powi(2))
-            / (2.0 * xs + 2.0 * xl - 2.0 * q * rs + 2.0 * q * rl));
-        let xp2 = (q
+        let xp = (q
             * (xs.powi(4)
                 + (4.0 * q * rs * xl + 2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs) * xs.powi(2)
                 - 4.0 * rs.powi(2) * xl.powi(2)
@@ -1076,7 +986,7 @@ pub fn calc_lp_ell_cl_w_q(
             - q * rs.powi(2)
             + 2.0 * q * rl * rs)
             / ((2.0 * q.powi(2) + 2.0) * rs);
-        let xc2 = ((xs.powi(4)
+        let xc = ((xs.powi(4)
             + (4.0 * q * rs * xl + 2.0 * rs.powi(2) + 4.0 * q.powi(2) * rl * rs) * xs.powi(2)
             - 4.0 * rs.powi(2) * xl.powi(2)
             + (4.0 * q * rs.powi(3) - 8.0 * q * rl * rs.powi(2)) * xl
@@ -1089,15 +999,9 @@ pub fn calc_lp_ell_cl_w_q(
             - rs.powi(2))
             / (2.0 * xs + 2.0 * xl - 2.0 * q * rs + 2.0 * q * rl);
 
-        if xc1 >= 0.0 || xp1 < 0.0 {
-            l = xp2 / w;
-            c = -1.0 / (w * xc2);
-            sol = 2;
-        } else {
-            l = xp1 / w;
-            c = -1.0 / (w * xc1);
-            sol = 1;
-        }
+        l = xp / w;
+        c = -1.0 / (w * xc);
+        sol = 1;
 
         c = scale(c, c_scale);
         l = scale(l, l_scale);
@@ -1208,7 +1112,7 @@ pub fn calc_lp_ell_lc_w_q(
         let xl = zl.im;
         q_net = (rp / zs.re - 1.0).sqrt();
 
-        let xp1 = -((q
+        let xp = -((q
             * (-(4.0 * rl.powi(2) * xs.powi(2))
                 + (4.0 * q * rl * xl.powi(2) - 8.0 * q * rl.powi(2) * rs + 4.0 * q * rl.powi(3))
                     * xs
@@ -1223,7 +1127,7 @@ pub fn calc_lp_ell_lc_w_q(
             - 2.0 * q * rl * rs
             + q * rl.powi(2))
             / ((2.0 * q.powi(2) + 2.0) * rl));
-        let xc1 = -(((-(4.0 * rl.powi(2) * xs.powi(2))
+        let xc = -(((-(4.0 * rl.powi(2) * xs.powi(2))
             + (4.0 * q * rl * xl.powi(2) - 8.0 * q * rl.powi(2) * rs + 4.0 * q * rl.powi(3))
                 * xs
             + xl.powi(4)
@@ -1237,44 +1141,10 @@ pub fn calc_lp_ell_lc_w_q(
             + 2.0 * q * rs * xl
             + rl.powi(2))
             / (2.0 * xs + 2.0 * xl + 2.0 * q * rs - 2.0 * q * rl));
-        let xp2 = (q
-            * (-(4.0 * rl.powi(2) * xs.powi(2))
-                + (4.0 * q * rl * xl.powi(2) - 8.0 * q * rl.powi(2) * rs + 4.0 * q * rl.powi(3))
-                    * xs
-                + xl.powi(4)
-                + (4.0 * q.powi(2) * rl * rs + 2.0 * rl.powi(2)) * xl.powi(2)
-                - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2)
-                + 4.0 * q.powi(2) * rl.powi(3) * rs
-                + rl.powi(4))
-            .sqrt()
-            - 2.0 * q.powi(2) * rl * xs
-            - q * xl.powi(2)
-            + 2.0 * q * rl * rs
-            - q * rl.powi(2))
-            / ((2.0 * q.powi(2) + 2.0) * rl);
-        let xc2 = ((-(4.0 * rl.powi(2) * xs.powi(2))
-            + (4.0 * q * rl * xl.powi(2) - 8.0 * q * rl.powi(2) * rs + 4.0 * q * rl.powi(3)) * xs
-            + xl.powi(4)
-            + (4.0 * q.powi(2) * rl * rs + 2.0 * rl.powi(2)) * xl.powi(2)
-            - 4.0 * q.powi(2) * rl.powi(2) * rs.powi(2)
-            + 4.0 * q.powi(2) * rl.powi(3) * rs
-            + rl.powi(4))
-        .sqrt()
-            - 2.0 * xl * xs
-            - xl.powi(2)
-            - 2.0 * q * rs * xl
-            - rl.powi(2))
-            / (2.0 * xs + 2.0 * xl + 2.0 * q * rs - 2.0 * q * rl);
 
-        if xc1 >= 0.0 || xp1 < 0.0 {
-            l = xp2 / w;
-            c = -1.0 / (w * xc2);
-            sol = 2;
-        } else {
-            l = xp1 / w;
-            c = -1.0 / (w * xc1);
-            sol = 1;
-        }
+        l = xp / w;
+        c = -1.0 / (w * xc);
+        sol = 1;
 
         c = scale(c, c_scale);
         l = scale(l, l_scale);

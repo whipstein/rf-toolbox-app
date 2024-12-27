@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_variables, unused_imports)]
-use crate::rf_utils::{comp_vec_f64, unscale, ComplexReturn, Unit};
+use crate::rf_utils::{calc_z, comp_vec_f64, unscale, ComplexReturn, Unit};
 use float_cmp::{approx_eq, F64Margin};
-use num_complex::Complex;
+use num_complex::{c64, Complex};
 use serde::Serialize;
 use std::error::Error;
 use std::f64::consts::PI;
@@ -99,13 +99,25 @@ pub fn find_smith_coord(re: f64, im: f64, rotate: bool, verbose: bool) -> Result
     if rotate {
         z = z.inv();
     }
-    let g = (z - 1.0) / (z + 1.0);
+    let g = (z - c64(1.0, 0.0)) / (z + c64(1.0, 0.0));
 
     if verbose {
         println!("z = {:?}", z);
         println!("g = {:?}", g);
     }
     Ok(vec![g.re, g.im])
+}
+
+fn find_smith_coord_c64(
+    val: Complex<f64>,
+    rotate: bool,
+    verbose: bool,
+) -> Result<Vec<f64>, String> {
+    if verbose {
+        println!("\nfind_smith_coord_c64({:?}, {:?})", val, rotate);
+    }
+
+    find_smith_coord(val.re, val.im, rotate, verbose)
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -149,23 +161,21 @@ pub fn arc_smith_points(
     let line_zo = y2;
     let line_length = x2;
     let top_real_temp = x1 * line_zo;
+    let zl: Complex<f64> = calc_z(Complex::new(start_x_coord, start_y_coord), z0);
 
     for i in 0..=resolution {
         if type_ == "transmission_line" {
-            let tan_beta_arg = (beta * (i as f64) * line_length) / (resolution as f64);
-            let tan_beta = tan_beta_arg.tan();
-            let top_imag_temp = ((y1 * z0 + line_zo * tan_beta) * line_zo) / z0;
-            let bot_real_temp = line_zo - y1 * tan_beta * z0;
-            let bot_imag_temp = x1 * tan_beta * z0;
-            let temp_val = Complex::<f64>::new(bot_real_temp, bot_imag_temp).inv();
-            temp_array = vec![temp_val.re, temp_val.im];
-            let bot_real = temp_array[0];
-            let bot_imag = temp_array[1];
-            real_answer = top_real_temp * bot_real - top_imag_temp * bot_imag;
-            imag_answer = top_real_temp * bot_imag + top_imag_temp * bot_real;
-            temp_array = find_smith_coord(real_answer, imag_answer, rotate, false).unwrap();
+            let betal = (beta * (i as f64) * line_length) / (resolution as f64);
+            let zi = line_zo
+                * ((zl + Complex::<f64>::I * line_zo * betal.tan())
+                    / (line_zo + Complex::<f64>::I * zl * betal.tan()))
+                / z0;
+            temp_array = find_smith_coord_c64(zi, rotate, false).unwrap();
+
             x_coord[i] = temp_array[0];
             y_coord[i] = temp_array[1];
+            real_answer = zi.re;
+            imag_answer = zi.im;
         } else if type_ == "ss" {
             let mut tan_beta_arg: f64 = 0.0;
             if approx_eq!(f64, start_at_qtr_wl, 0_f64, F64Margin::default()) {
@@ -177,7 +187,7 @@ pub fn arc_smith_points(
                             / (resolution as f64));
             }
             stub_admittance_im = -1.0 / ((tan_beta_arg.tan() * line_zo) / z0);
-            temp_array = find_smith_coord(x1, y1 + stub_admittance_im, rotate, true).unwrap();
+            temp_array = find_smith_coord(x1, y1 + stub_admittance_im, rotate, false).unwrap();
             x_coord[i] = temp_array[0];
             y_coord[i] = temp_array[1];
         } else if type_ == "so" {

@@ -162,7 +162,9 @@ impl FromStr for Unit {
             "mega" | "M" | "MHz" | "mhz" | "MΩ" => Ok(Unit::Mega),
             "kilo" | "k" | "kHz" | "khz" | "kΩ" => Ok(Unit::Kilo),
             "milli" | "m" | "mΩ" | "mF" | "mH" => Ok(Unit::Milli),
-            "micro" | "u" | "μΩ" | "μF" | "μH" => Ok(Unit::Micro),
+            "micro" | "u" | "uΩ" | "μΩ" | "uF" | "μF" | "uH" | "μH" | "um" | "μm" => {
+                Ok(Unit::Micro)
+            }
             "nano" | "n" | "nΩ" | "nF" | "nH" => Ok(Unit::Nano),
             "pico" | "p" | "pΩ" | "pF" | "pH" => Ok(Unit::Pico),
             "femto" | "f" | "fΩ" | "fF" | "fH" => Ok(Unit::Femto),

@@ -143,8 +143,8 @@ async fn start_smith_chart_tool(app: AppHandle) -> tauri::Result<()> {
         WebviewUrl::App("smithChart.html".into()),
     )
     .inner_size(1800.0, 1600.0)
-    .build()?
-    .open_devtools();
+    .build()?;
+    // .open_devtools();
 
     Ok(())
 }
