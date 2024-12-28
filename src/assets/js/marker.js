@@ -17,7 +17,7 @@ export function addCustomMarker() {
     name = 'MP' + customMarkers.length;
   }
 
-  if (schematic[0].imp == 'diff') {
+  if (settings.imp == 'diff') {
     customMarkers.push({ re: real / 2, im: imaginary / 2, name: name });
   } else {
     customMarkers.push({ re: real, im: imaginary, name: name });

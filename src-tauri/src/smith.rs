@@ -303,53 +303,67 @@ pub fn calc_ri(
         println!("], {:?}, {:?}, {:?}, {:?})", type_, freq, z0, diff);
     }
 
-    let mut re: f64 = 0.0;
-    let mut im: f64 = 0.0;
-    let mut ln: f64 = 0.0;
-
-    match type_ {
+    let (re, im, ln, r1, r2) = match type_ {
         "bb" => {
-            re = vals[0] / z0;
-            im = vals[1] / z0;
+            if diff && type_ == "bb" {
+                (vals[0] / 2.0 / z0, vals[1] / 2.0 / z0, 0.0, 0.0, 0.0)
+            } else {
+                (vals[0] / z0, vals[1] / z0, 0.0, 0.0, 0.0)
+            }
         }
-        "sr" | "pr" => {
-            re = unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0;
-        }
+        "sr" | "pr" => (
+            unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+        ),
         "sc" | "pc" => {
+            let mut tmp: f64 = 0.0;
             if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
-                re = 0.0;
+                tmp = 0.0;
             } else if units[0] == "Q" {
-                re = 1.0
+                tmp = 1.0
                     / (2.0
                         * PI
                         * freq
                         * unscale(vals[1], &Unit::from_str(units[1]).unwrap())
-                        * vals[0])
-                    / z0;
+                        * vals[0]);
             } else {
-                re = unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0;
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
             }
-            im = -1.0
-                / (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()))
-                / z0;
+            (
+                tmp / z0,
+                -1.0 / (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()))
+                    / z0,
+                0.0,
+                0.0,
+                0.0,
+            )
         }
         "si" | "pi" => {
+            let mut tmp: f64 = 0.0;
             if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
-                re = 0.0;
+                tmp = 0.0;
             } else if units[0] == "Q" {
-                re = (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()))
-                    / vals[0]
-                    / z0;
+                tmp = (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()))
+                    / vals[0];
             } else {
-                re = unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0;
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
             }
-            im = 2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()) / z0;
+            (
+                tmp / z0,
+                2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()) / z0,
+                0.0,
+                0.0,
+                0.0,
+            )
         }
         "xfmr" => {
             let mut l1_tee: f64 = 0.0;
             let mut l2_tee: f64 = 0.0;
             let mut ls_tee: f64 = 0.0;
-            let mut n: f64 = 0.0;
+            let n: f64 = 0.0;
             let mut r1: f64 = 0.0;
             let mut r2: f64 = 0.0;
             let l1 = unscale(vals[1], &Unit::from_str(units[1]).unwrap());
@@ -373,34 +387,52 @@ pub fn calc_ri(
                 ls_tee = m;
             }
             if units[0] == "Q" && !approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
-                r1 = 2.0 * PI * freq * l1 / vals[0] / z0;
-                r2 = 2.0 * PI * freq * l2 / vals[0] / z0;
+                r1 = 2.0 * PI * freq * l1 / vals[0];
+                r2 = 2.0 * PI * freq * l2 / vals[0];
             } else {
                 r1 = vals[0];
                 r2 = vals[0];
             }
+            let z1: Complex<f64> = c64(r1, 2.0 * PI * freq * l1_tee);
+            let z2: Complex<f64> = c64(0.0, 2.0 * PI * freq * ls_tee);
+            let z3: Complex<f64> = c64(r2, 2.0 * PI * freq * l2_tee);
+            let zout: Complex<f64> = ((z1.inv() + z2.inv()).inv() + z3) / z0;
+            (l1_tee, l2_tee, ls_tee, r1, r2)
         }
-        "rlc" => {
-            re = unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0;
-            im = (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap())
+        "rlc" => (
+            unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0,
+            (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap())
                 - 1.0 / (2.0 * PI * freq * unscale(vals[2], &Unit::from_str(units[2]).unwrap())))
-                / z0;
-        }
-        "rl" => {
-            re = unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0;
-            im = 2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()) / z0;
-        }
-        "rc" => {
-            re = 1.0 / unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0;
-            im = -1.0
-                / (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()))
-                / z0;
-        }
-        "tl" | "so" | "ss" => {
-            ln = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
-        }
+                / z0,
+            0.0,
+            0.0,
+            0.0,
+        ),
+        "rl" => (
+            unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0,
+            2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap()) / z0,
+            0.0,
+            0.0,
+            0.0,
+        ),
+        "rc" => (
+            1.0 / unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0,
+            -1.0 / (2.0 * PI * freq * unscale(vals[1], &Unit::from_str(units[1]).unwrap())) / z0,
+            0.0,
+            0.0,
+            0.0,
+        ),
+        "tl" | "so" | "ss" => (
+            0.0,
+            0.0,
+            unscale(vals[0], &Unit::from_str(units[0]).unwrap()),
+            0.0,
+            0.0,
+        ),
         "customZ" => {
             let mut index_res: usize = lut.len() - 1;
+            let mut tmp_re: f64 = 0.0;
+            let mut tmp_im: f64 = 0.0;
             for i in 0..lut.len() {
                 if lut[i][0] > freq {
                     index_res = i;
@@ -409,31 +441,641 @@ pub fn calc_ri(
             }
 
             if (index_res == lut.len() - 1) || (index_res == 0) {
-                re = lut[index_res][1];
-                im = lut[index_res][2];
+                tmp_re = lut[index_res][1];
+                tmp_im = lut[index_res][2];
             } else {
                 let f1 = lut[index_res - 1][0];
                 let f2 = lut[index_res][0];
                 let frac = (freq - f1) / (f2 - f1);
-                re = lut[index_res - 1][1] + frac * (lut[index_res][1] - lut[index_res - 1][1]);
-                im = lut[index_res - 1][2] + frac * (lut[index_res][2] - lut[index_res - 1][2]);
+                tmp_re = lut[index_res - 1][1] + frac * (lut[index_res][1] - lut[index_res - 1][1]);
+                tmp_im = lut[index_res - 1][2] + frac * (lut[index_res][2] - lut[index_res - 1][2]);
             }
 
-            re /= z0;
-            im /= z0;
+            (tmp_re / z0, tmp_im / z0, 0.0, 0.0, 0.0)
         }
         _ => return Err("element not recognized".to_string()),
-    }
-
-    if diff && type_ == "bb" {
-        re /= 2.0;
-        im /= 2.0;
-    }
+    };
 
     if verbose {
         println!("[{:?}, {:?}, {:?}]", re, im, ln);
     }
     Ok(vec![re, im, ln])
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn calc_ri_new(
+    vals: Vec<f64>,
+    units: Vec<&str>,
+    length: f64,
+    line_z0: f64,
+    lut: Vec<[f64; 3]>,
+    type_: &str,
+    freq: f64,
+    freq_unit: &str,
+    z0: f64,
+    er: f64,
+    rin: f64,
+    xin: f64,
+    diff: bool,
+    verbose: bool,
+) -> Result<Vec<f64>, String> {
+    if verbose {
+        print!("\ncalc_ri_new([");
+        for i in 0..vals.len() {
+            print!("{:?}", vals[i]);
+            if i != vals.len() - 1 {
+                print!(", ");
+            }
+        }
+        print!("], [");
+        for i in 0..units.len() {
+            print!("{:?}", units[i]);
+            if i != units.len() - 1 {
+                print!(", ");
+            }
+        }
+        print!("], {:?}, {:?}, [", length, line_z0);
+        for i in 0..lut.len() {
+            print!("[{:?}, {:?}, {:?}]", lut[i][0], lut[i][1], lut[i][2]);
+            if i != lut.len() - 1 {
+                print!(", ");
+            }
+        }
+        println!(
+            "], {:?}, {:?}, {:?}, {:?}, {:?}, {:?}, {:?}, {:?})",
+            type_, freq, freq_unit, z0, er, rin, xin, diff
+        );
+    }
+
+    let zin: Complex<f64> = c64(rin * z0, xin * z0);
+
+    let (rout, xout) = match type_ {
+        "bb" => {
+            if diff && type_ == "bb" {
+                (rin + vals[0] / 2.0 / z0, xin + vals[1] / 2.0 / z0)
+            } else {
+                (rin + vals[0] / z0, xin + vals[1] / z0)
+            }
+        }
+        "sr" => (
+            rin + unscale(vals[0], &Unit::from_str(units[0]).unwrap()) / z0,
+            xin,
+        ),
+        "pr" => {
+            let zout = (zin.inv()
+                + c64(unscale(vals[0], &Unit::from_str(units[0]).unwrap()), 0.0).inv())
+            .inv()
+                / z0;
+            (zout.re, zout.im)
+        }
+        "sc" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = 1.0
+                    / (2.0
+                        * PI
+                        * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                        * unscale(vals[1], &Unit::from_str(units[1]).unwrap())
+                        * vals[0]);
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            let zout =
+                (zin + c64(
+                    tmp,
+                    -1.0 / (2.0
+                        * PI
+                        * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                        * unscale(vals[1], &Unit::from_str(units[1]).unwrap())),
+                )) / z0;
+            (zout.re, zout.im)
+        }
+        "pc" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = 1.0
+                    / (2.0
+                        * PI
+                        * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                        * unscale(vals[1], &Unit::from_str(units[1]).unwrap())
+                        * vals[0]);
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            let zout = (zin.inv()
+                + c64(
+                    tmp,
+                    -1.0 / (2.0
+                        * PI
+                        * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                        * unscale(vals[1], &Unit::from_str(units[1]).unwrap())),
+                )
+                .inv())
+            .inv()
+                / z0;
+            (zout.re, zout.im)
+        }
+        "si" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = (2.0
+                    * PI
+                    * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                    * unscale(vals[1], &Unit::from_str(units[1]).unwrap()))
+                    / vals[0];
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            let zout =
+                (zin + c64(
+                    tmp,
+                    2.0 * PI
+                        * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                        * unscale(vals[1], &Unit::from_str(units[1]).unwrap()),
+                )) / z0;
+            (zout.re, zout.im)
+        }
+        "pi" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = (2.0
+                    * PI
+                    * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                    * unscale(vals[1], &Unit::from_str(units[1]).unwrap()))
+                    / vals[0];
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            let x = 2.0
+                * PI
+                * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                * unscale(vals[1], &Unit::from_str(units[1]).unwrap());
+            let zout = (zin.inv() + c64(tmp, x).inv()).inv() / z0;
+            (zout.re, zout.im)
+        }
+        "xfmr" => {
+            let mut l1_tee: f64 = 0.0;
+            let mut l2_tee: f64 = 0.0;
+            let mut ls_tee: f64 = 0.0;
+            let n: f64 = 0.0;
+            let mut r1: f64 = 0.0;
+            let mut r2: f64 = 0.0;
+            let l1 = unscale(vals[1], &Unit::from_str(units[1]).unwrap());
+            let mut l2 = unscale(vals[2], &Unit::from_str(units[2]).unwrap());
+            let mut k = vals[3];
+            if units[3] == "k" {
+                l1_tee = (1.0 - k) * l1;
+                l2_tee = (1.0 - k) * l2;
+                ls_tee = k * l1;
+            }
+            if units[2] == "n" {
+                let n = vals[2];
+                l2 = n.powi(2) * l1;
+                l2_tee = (1.0 - k) * l2;
+            }
+            if units[3] != "k" {
+                let m = unscale(vals[3], &Unit::from_str(units[3]).unwrap());
+                k = m / l1;
+                l1_tee = (1.0 - k) * l1;
+                l2_tee = (1.0 - k) * l2;
+                ls_tee = m;
+            }
+            if units[0] == "Q" && !approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                r1 = 2.0 * PI * freq * l1 / vals[0];
+                r2 = 2.0 * PI * freq * l2 / vals[0];
+            } else {
+                r1 = vals[0];
+                r2 = vals[0];
+            }
+            let z1: Complex<f64> = c64(
+                r1,
+                2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * l1_tee,
+            );
+            let z2: Complex<f64> = c64(
+                0.0,
+                2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * ls_tee,
+            );
+            let z3: Complex<f64> = c64(
+                r2,
+                2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * l2_tee,
+            );
+            let zout: Complex<f64> = (zin
+                + (c64(
+                    r1,
+                    2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * l1_tee,
+                )
+                .inv()
+                    + c64(
+                        0.0,
+                        2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * ls_tee,
+                    )
+                    .inv())
+                .inv()
+                + c64(
+                    r2,
+                    2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * l2_tee,
+                ))
+                / z0;
+            (zout.re, zout.im)
+        }
+        "rlc" => {
+            let zrlc = c64(
+                unscale(vals[0], &Unit::from_str(units[0]).unwrap()),
+                2.0 * PI
+                    * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                    * unscale(vals[1], &Unit::from_str(units[1]).unwrap())
+                    - 1.0
+                        / (2.0
+                            * PI
+                            * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                            * unscale(vals[2], &Unit::from_str(units[2]).unwrap())),
+            );
+            let zout = (zin.inv() + zrlc.inv()).inv() / z0;
+            (zout.re, zout.im)
+        }
+        "rl" => {
+            let zrl = c64(
+                unscale(vals[0], &Unit::from_str(units[0]).unwrap()),
+                2.0 * PI
+                    * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                    * unscale(vals[1], &Unit::from_str(units[1]).unwrap()),
+            );
+            let zout = (zin.inv() + zrl.inv()).inv() / z0;
+            (zout.re, zout.im)
+        }
+        "rc" => {
+            let zrc = c64(
+                1.0 / unscale(vals[0], &Unit::from_str(units[0]).unwrap()),
+                -1.0 / (2.0
+                    * PI
+                    * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                    * unscale(vals[1], &Unit::from_str(units[1]).unwrap())),
+            );
+            let zout = (zin.inv() + zrc.inv()).inv() / z0;
+            (zout.re, zout.im)
+        }
+        "tl" => {
+            let betal =
+                2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * er.sqrt() * length;
+            let zout = line_z0
+                * ((zin + Complex::<f64>::I * line_z0 * betal.tan())
+                    / (line_z0 + Complex::<f64>::I * zin * betal.tan()))
+                / z0;
+            (zout.re, zout.im)
+        }
+        "so" => {
+            let betalinv = 1.0
+                / (2.0
+                    * PI
+                    * unscale(freq, &Unit::from_str(freq_unit).unwrap())
+                    * er.sqrt()
+                    * length);
+            let zstub = -Complex::<f64>::I * line_z0 * betalinv.tan();
+            let zout = (zin.inv() + zstub.inv()).inv() / z0;
+            (zout.re, zout.im)
+        }
+        "ss" => {
+            let betal =
+                2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap()) * er.sqrt() * length;
+            let zstub = Complex::<f64>::I * line_z0 * betal.tan();
+            let zout = (zin.inv() + zstub.inv()).inv() / z0;
+            (zout.re, zout.im)
+        }
+        "customZ" => {
+            let mut index_res: usize = lut.len() - 1;
+            let mut tmp_re: f64 = 0.0;
+            let mut tmp_im: f64 = 0.0;
+            for i in 0..lut.len() {
+                if lut[i][0] > freq {
+                    index_res = i;
+                    break;
+                }
+            }
+
+            if (index_res == lut.len() - 1) || (index_res == 0) {
+                tmp_re = lut[index_res][1];
+                tmp_im = lut[index_res][2];
+            } else {
+                let f1 = lut[index_res - 1][0];
+                let f2 = lut[index_res][0];
+                let frac = (freq - f1) / (f2 - f1);
+                tmp_re = lut[index_res - 1][1] + frac * (lut[index_res][1] - lut[index_res - 1][1]);
+                tmp_im = lut[index_res - 1][2] + frac * (lut[index_res][2] - lut[index_res - 1][2]);
+            }
+
+            let zout = (zin + c64(tmp_re, tmp_im)) / z0;
+            (zout.re, zout.im)
+        }
+        _ => return Err("element not recognized".to_string()),
+    };
+
+    if verbose {
+        println!("[{:?}, {:?}]", rout, xout);
+    }
+    Ok(vec![rout, xout])
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn calc_ri_bb(vals: Vec<f64>, z0: f64, diff: &str, verbose: bool) -> Result<Vec<f64>, String> {
+    if verbose {
+        print!("\ncalc_ri_tline([");
+        for i in 0..vals.len() {
+            print!("{:?}", vals[i]);
+            if i != vals.len() - 1 {
+                print!(", ");
+            }
+        }
+        println!("], {:?})", z0);
+    }
+
+    let (r, x) = match diff {
+        "diff" => (vals[0] / 2.0, vals[1] / 2.0),
+        _ => (vals[0], vals[1]),
+    };
+
+    let (rout, xout) = (r / z0, x / z0);
+    if verbose {
+        println!("[{:?}, {:?}]", rout, xout);
+    }
+    Ok(vec![rout, xout])
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn calc_ri_lumped(
+    vals: Vec<f64>,
+    units: Vec<&str>,
+    type_: &str,
+    freq: f64,
+    freq_unit: &str,
+    z0: f64,
+    verbose: bool,
+) -> Result<Vec<f64>, String> {
+    if verbose {
+        print!("\ncalc_ri_lumped([");
+        for i in 0..vals.len() {
+            print!("{:?}", vals[i]);
+            if i != vals.len() - 1 {
+                print!(", ");
+            }
+        }
+        print!("], [");
+        for i in 0..units.len() {
+            print!("{:?}", units[i]);
+            if i != units.len() - 1 {
+                print!(", ");
+            }
+        }
+        println!("], {:?}, {:?}, {:?}, {:?})", type_, freq, freq_unit, z0);
+    }
+
+    let freq_unscaled = unscale(freq, &Unit::from_str(freq_unit).unwrap());
+    let w = 2.0 * PI * freq_unscaled;
+
+    let (r, x) = match type_ {
+        "sr" => (unscale(vals[0], &Unit::from_str(units[0]).unwrap()), 0.0),
+        "pr" => (unscale(vals[0], &Unit::from_str(units[0]).unwrap()), 0.0),
+        "sc" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = 1.0 / (w * unscale(vals[1], &Unit::from_str(units[1]).unwrap()) * vals[0]);
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            (
+                tmp,
+                -1.0 / (w * unscale(vals[1], &Unit::from_str(units[1]).unwrap())),
+            )
+        }
+        "pc" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = 1.0 / (w * unscale(vals[1], &Unit::from_str(units[1]).unwrap()) * vals[0]);
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            (
+                tmp,
+                -1.0 / (w * unscale(vals[1], &Unit::from_str(units[1]).unwrap())),
+            )
+        }
+        "si" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = (w * unscale(vals[1], &Unit::from_str(units[1]).unwrap())) / vals[0];
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            (
+                tmp,
+                w * unscale(vals[1], &Unit::from_str(units[1]).unwrap()),
+            )
+        }
+        "pi" => {
+            let mut tmp: f64 = 0.0;
+            if approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                tmp = 0.0;
+            } else if units[0] == "Q" {
+                tmp = (w * unscale(vals[1], &Unit::from_str(units[1]).unwrap())) / vals[0];
+            } else {
+                tmp = unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+            }
+            (
+                tmp,
+                w * unscale(vals[1], &Unit::from_str(units[1]).unwrap()),
+            )
+        }
+        "xfmr" => {
+            let mut l1_tee: f64 = 0.0;
+            let mut l2_tee: f64 = 0.0;
+            let mut ls_tee: f64 = 0.0;
+            let n: f64 = 0.0;
+            let mut r1: f64 = 0.0;
+            let mut r2: f64 = 0.0;
+            let l1 = unscale(vals[1], &Unit::from_str(units[1]).unwrap());
+            let mut l2 = unscale(vals[2], &Unit::from_str(units[2]).unwrap());
+            let mut k = vals[3];
+            if units[3] == "k" {
+                l1_tee = (1.0 - k) * l1;
+                l2_tee = (1.0 - k) * l2;
+                ls_tee = k * l1;
+            }
+            if units[2] == "n" {
+                let n = vals[2];
+                l2 = n.powi(2) * l1;
+                l2_tee = (1.0 - k) * l2;
+            }
+            if units[3] != "k" {
+                let m = unscale(vals[3], &Unit::from_str(units[3]).unwrap());
+                k = m / l1;
+                l1_tee = (1.0 - k) * l1;
+                l2_tee = (1.0 - k) * l2;
+                ls_tee = m;
+            }
+            if units[0] == "Q" && !approx_eq!(f64, vals[0], 0_f64, F64Margin::default()) {
+                r1 = w * l1 / vals[0];
+                r2 = w * l2 / vals[0];
+            } else {
+                r1 = vals[0];
+                r2 = vals[0];
+            }
+            let zout: Complex<f64> = (c64(r1, w * l1_tee).inv() + c64(0.0, w * ls_tee).inv()).inv()
+                + c64(r2, w * l2_tee);
+            (zout.re, zout.im)
+        }
+        "rlc" => (
+            unscale(vals[0], &Unit::from_str(units[0]).unwrap()),
+            w * unscale(vals[1], &Unit::from_str(units[1]).unwrap())
+                - 1.0 / (w * unscale(vals[2], &Unit::from_str(units[2]).unwrap())),
+        ),
+        "rl" => (
+            unscale(vals[0], &Unit::from_str(units[0]).unwrap()),
+            w * unscale(vals[1], &Unit::from_str(units[1]).unwrap()),
+        ),
+        "rc" => (
+            1.0 / unscale(vals[0], &Unit::from_str(units[0]).unwrap()),
+            -1.0 / (w * unscale(vals[1], &Unit::from_str(units[1]).unwrap())),
+        ),
+        _ => return Err("element not recognized".to_string()),
+    };
+
+    if verbose {
+        println!("[{:?}, {:?}]", r / z0, x / z0);
+    }
+    Ok(vec![r / z0, x / z0])
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn calc_ri_custom(
+    lut: Vec<[f64; 3]>,
+    interp: &str,
+    freq: f64,
+    freq_unit: &str,
+    z0: f64,
+    verbose: bool,
+) -> Result<Vec<f64>, String> {
+    if verbose {
+        print!("\ncalc_ri_custom([");
+        for i in 0..lut.len() {
+            print!("{:?}", lut[i]);
+            if i != lut.len() - 1 {
+                print!(", ");
+            }
+        }
+        println!("], {:?}, {:?}, {:?}, {:?})", interp, freq, freq_unit, z0);
+    }
+
+    let freq_unscaled = unscale(freq, &Unit::from_str(freq_unit).unwrap());
+
+    let mut index_res: usize = lut.len() - 1;
+    let mut r: f64 = 0.0;
+    let mut x: f64 = 0.0;
+    for i in 0..lut.len() {
+        if lut[i][0] > freq_unscaled {
+            index_res = i;
+            break;
+        }
+    }
+
+    if (index_res == lut.len() - 1) || (index_res == 0) {
+        r = lut[index_res][1];
+        x = lut[index_res][2];
+    } else {
+        let f1 = lut[index_res - 1][0];
+        let f2 = lut[index_res][0];
+        let frac = (freq_unscaled - f1) / (f2 - f1);
+        r = lut[index_res - 1][1] + frac * (lut[index_res][1] - lut[index_res - 1][1]);
+        x = lut[index_res - 1][2] + frac * (lut[index_res][2] - lut[index_res - 1][2]);
+    }
+
+    if verbose {
+        println!("[{:?}, {:?}]", r / z0, x / z0);
+    }
+    Ok(vec![r / z0, x / z0])
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn calc_ri_tline(
+    vals: Vec<f64>,
+    units: Vec<&str>,
+    line_z0: f64,
+    type_: &str,
+    freq: f64,
+    freq_unit: &str,
+    z0: f64,
+    er: f64,
+    verbose: bool,
+) -> Result<Vec<f64>, String> {
+    if verbose {
+        print!("\ncalc_ri_tline([");
+        for i in 0..vals.len() {
+            print!("{:?}", vals[i]);
+            if i != vals.len() - 1 {
+                print!(", ");
+            }
+        }
+        print!("], [");
+        for i in 0..units.len() {
+            print!("{:?}", units[i]);
+            if i != units.len() - 1 {
+                print!(", ");
+            }
+        }
+        println!(
+            "], {:?}, {:?}, {:?}, {:?}, {:?}, {:?})",
+            line_z0, type_, freq, freq_unit, z0, er
+        );
+    }
+
+    let w = 2.0 * PI * unscale(freq, &Unit::from_str(freq_unit).unwrap());
+    let betal = w * er.sqrt() * unscale(vals[0], &Unit::from_str(units[0]).unwrap());
+
+    let (r, x) = match type_ {
+        "tl" => {
+            let zout: Complex<f64> = line_z0
+                * ((c64(50.0, 0.0) + Complex::<f64>::I * line_z0 * betal.tan())
+                    / (line_z0 + Complex::<f64>::I * c64(50.0, 0.0) * betal.tan()));
+            (zout.re, zout.im)
+        }
+        "so" => {
+            let betalinv = 1.0 / betal;
+            let zout: Complex<f64> = -Complex::<f64>::I * line_z0 * betalinv.tan();
+            (zout.re, zout.im)
+        }
+        "ss" => {
+            let zout: Complex<f64> = Complex::<f64>::I * line_z0 * betal.tan();
+            (zout.re, zout.im)
+        }
+        _ => return Err("element not recognized".to_string()),
+    };
+
+    let (rout, xout) = (r / z0, x / z0);
+    if verbose {
+        println!("[{:?}, {:?}]", rout, xout);
+    }
+    Ok(vec![rout, xout])
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn calc_z_to_gamma(re: f64, im: f64, z0: f64) -> Result<Vec<f64>, String> {
+    let z: Complex<f64> = c64(re, im);
+
+    let g = (z - z0) / (z + z0);
+
+    Ok(vec![g.re, g.im, g.norm(), g.arg() * 180.0 / PI])
 }
 
 #[cfg(test)]

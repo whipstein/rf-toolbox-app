@@ -1,4 +1,4 @@
-import { color_of_smith_curves, schematic, precision } from './defaults.js';
+import { schematic, settings, precision, current_color } from './defaults.js';
 import { update_smith_chart } from './smith_tool.js';
 
 export var show_labels_DP = true;
@@ -81,7 +81,7 @@ export function draw_schematic(i) {
       sch_imag = false;
       sch_real = true;
       sch_abs = true;
-      unit = [['mΩ', 'Ω', 'KΩ', 'MΩ']];
+      unit = [['mΩ', 'Ω', 'kΩ', 'MΩ']];
       sch_icon = 'resistor_parallel';
       sch_svg = 2500;
       break;
@@ -91,7 +91,7 @@ export function draw_schematic(i) {
       sch_imag = false;
       sch_real = true;
       sch_abs = true;
-      unit = [['mΩ', 'Ω', 'KΩ', 'MΩ']];
+      unit = [['mΩ', 'Ω', 'kΩ', 'MΩ']];
       sch_icon = 'resistor_series';
       sch_svg = 3000;
       break;
@@ -103,7 +103,7 @@ export function draw_schematic(i) {
       sch_abs = true;
       unit = [
         ['Q', 'mΩ', 'Ω'],
-        ['mF', 'uF', 'nF', 'pF', 'fF'],
+        ['mF', 'μF', 'nF', 'pF', 'fF'],
       ];
       sch_icon = 'capacitor_parallel';
       sch_svg = 500;
@@ -116,7 +116,7 @@ export function draw_schematic(i) {
       sch_abs = true;
       unit = [
         ['Q', 'mΩ', 'Ω'],
-        ['mF', 'uF', 'nF', 'pF', 'fF'],
+        ['mF', 'μF', 'nF', 'pF', 'fF'],
       ];
       sch_icon = 'capacitor_series';
       sch_svg = 1000;
@@ -129,7 +129,7 @@ export function draw_schematic(i) {
       sch_abs = true;
       unit = [
         ['Q', 'mΩ', 'Ω'],
-        ['H', 'mH', 'uH', 'nH', 'pH'],
+        ['H', 'mH', 'μH', 'nH', 'pH'],
       ];
       sch_icon = 'inductor_parallel';
       sch_svg = 1500;
@@ -142,7 +142,7 @@ export function draw_schematic(i) {
       sch_abs = true;
       unit = [
         ['Q', 'mΩ', 'Ω'],
-        ['H', 'mH', 'uH', 'nH', 'pH'],
+        ['H', 'mH', 'μH', 'nH', 'pH'],
       ];
       sch_icon = 'inductor_series';
       sch_svg = 2000;
@@ -153,7 +153,7 @@ export function draw_schematic(i) {
       sch_imag = false;
       sch_real = false;
       sch_abs = true; //is actually length
-      unit = [[' m', 'mm', 'um', 'λ']];
+      unit = [[' m', 'mm', 'μm', 'λ']];
       sch_icon = 'transmission_line';
       sch_svg = 3500;
       break;
@@ -163,7 +163,7 @@ export function draw_schematic(i) {
       sch_imag = false;
       sch_real = false;
       sch_abs = true; //is actually length
-      unit = [[' m', 'mm', 'um', 'λ']];
+      unit = [[' m', 'mm', 'μm', 'λ']];
       sch_icon = 'stub_short';
       sch_svg = 4500;
       break;
@@ -173,7 +173,7 @@ export function draw_schematic(i) {
       sch_imag = false;
       sch_real = false;
       sch_abs = true; //is actually length
-      unit = [[' m', 'mm', 'um', 'λ']];
+      unit = [[' m', 'mm', 'μm', 'λ']];
       sch_icon = 'stub_open';
       sch_svg = 4000;
       break;
@@ -185,9 +185,9 @@ export function draw_schematic(i) {
       sch_abs = true;
       unit = [
         ['Q', 'mΩ', 'Ω'],
-        ['H', 'mH', 'uH', 'nH', 'pH'],
-        ['H', 'mH', 'uH', 'nH', 'pH', 'n'],
-        ['k', 'H', 'mH', 'uH', 'nH', 'pH'],
+        ['H', 'mH', 'μH', 'nH', 'pH'],
+        ['H', 'mH', 'μH', 'nH', 'pH', 'n'],
+        ['k', 'H', 'mH', 'μH', 'nH', 'pH'],
       ];
       sch_icon = 'inductor_parallel';
       sch_svg = 6500;
@@ -199,9 +199,9 @@ export function draw_schematic(i) {
       sch_real = true;
       sch_abs = true;
       unit = [
-        ['mΩ', 'Ω', 'KΩ', 'MΩ'],
-        ['H', 'mH', 'uH', 'nH', 'pH'],
-        ['mF', 'uF', 'nF', 'pF', 'fF'],
+        ['mΩ', 'Ω', 'kΩ', 'MΩ'],
+        ['H', 'mH', 'μH', 'nH', 'pH'],
+        ['mF', 'μF', 'nF', 'pF', 'fF'],
       ];
       sch_icon = 'black_box';
       sch_svg = 6000;
@@ -226,7 +226,7 @@ export function draw_schematic(i) {
 
   var cntR, cntC, ittUnit, boxType, varSelect, unitIndex;
   var absCounter = 0;
-  const z0 = schematic[0].z0;
+  const z0 = settings.z0;
   for (cntR = 0; cntR < rows_to_create.length; cntR++) {
     innerText += '<div class="row ms-3 me-3"><div class="input-group mb-1 p-0">';
     for (cntC = 0; cntC < rows_to_create[cntR].length; cntC++) {
@@ -352,7 +352,7 @@ export function draw_schematic(i) {
 //     );
 //     console.log('z0 = ' + z0.value + ', resolution = ' + resolution);
 //   }
-//   const z0_int = schematic[0].z0;
+//   const z0_int = settings.z0;
 //   var x_coord = [];
 //   var y_coord = [];
 //   var end_x_coord = 0;
@@ -524,19 +524,19 @@ export var layout = {
 };
 
 export function configure_layout_shapes() {
-  let color_resistance_real, color_resistance_imaginary, color_admittance_real, color_admittance_imaginary;
+  // let current_color.resistance_real, current_color.resistance_imaginary, current_color.admittance_real, current_color.admittance_imaginary;
 
-  if (color_of_smith_curves == 'bland') {
-    color_resistance_real = 'rgba(255, 0, 0, 0.2)';
-    color_resistance_imaginary = 'rgba(255, 0, 0, 0.3)';
-    color_admittance_real = 'rgba(0, 0, 255, 0.2)';
-    color_admittance_imaginary = 'rgba(0, 0, 255, 0.3)';
-  } else {
-    color_resistance_real = 'rgba(150, 0, 0, 0.2)';
-    color_resistance_imaginary = 'rgba(252, 114, 2, 0.3)';
-    color_admittance_real = 'rgba(255, 0, 250, 0.2)';
-    color_admittance_imaginary = 'rgba(0, 10, 163, 0.3)';
-  }
+  // if (color_of_smith_curves == 'bland') {
+  //   current_color.resistance_real = 'rgba(255, 0, 0, 0.2)';
+  //   current_color.resistance_imaginary = 'rgba(255, 0, 0, 0.3)';
+  //   current_color.admittance_real = 'rgba(0, 0, 255, 0.2)';
+  //   current_color.admittance_imaginary = 'rgba(0, 0, 255, 0.3)';
+  // } else {
+  //   current_color.resistance_real = 'rgba(150, 0, 0, 0.2)';
+  //   current_color.resistance_imaginary = 'rgba(252, 114, 2, 0.3)';
+  //   current_color.admittance_real = 'rgba(255, 0, 250, 0.2)';
+  //   current_color.admittance_imaginary = 'rgba(0, 10, 163, 0.3)';
+  // }
 
   var shapes_omni = [
     {
@@ -546,7 +546,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 1,
       line: {
-        color: color_resistance_real,
+        color: current_color.resistance_real,
       },
     },
   ];
@@ -560,8 +560,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.833,
       line: {
-        color: color_resistance_real,
+        color: current_color.resistance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -570,8 +571,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.666,
       line: {
-        color: color_resistance_real,
+        color: current_color.resistance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -580,8 +582,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.5,
       line: {
-        color: color_resistance_real,
+        color: current_color.resistance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -590,8 +593,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.333,
       line: {
-        color: color_resistance_real,
+        color: current_color.resistance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -600,8 +604,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.2,
       line: {
-        color: color_resistance_real,
+        color: current_color.resistance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -610,8 +615,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.0909,
       line: {
-        color: color_resistance_real,
+        color: current_color.resistance_real,
       },
+      opacity: 0.5,
     },
   ];
 
@@ -624,8 +630,9 @@ export function configure_layout_shapes() {
       x1: -1,
       y1: 0.8,
       line: {
-        color: color_admittance_real,
+        color: current_color.admittance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -634,8 +641,9 @@ export function configure_layout_shapes() {
       x1: -1,
       y1: 0.666,
       line: {
-        color: color_admittance_real,
+        color: current_color.admittance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -644,8 +652,9 @@ export function configure_layout_shapes() {
       x1: 0,
       y1: 0.5,
       line: {
-        color: color_admittance_real,
+        color: current_color.admittance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -654,8 +663,9 @@ export function configure_layout_shapes() {
       x1: -0.333,
       y1: 0.333,
       line: {
-        color: color_admittance_real,
+        color: current_color.admittance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -664,8 +674,9 @@ export function configure_layout_shapes() {
       x1: -0.666,
       y1: 0.166,
       line: {
-        color: color_admittance_real,
+        color: current_color.admittance_real,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -674,8 +685,9 @@ export function configure_layout_shapes() {
       x1: -0.818,
       y1: 0.0909,
       line: {
-        color: color_admittance_real,
+        color: current_color.admittance_real,
       },
+      opacity: 0.5,
     },
   ];
 
@@ -688,8 +700,9 @@ export function configure_layout_shapes() {
       x1: 1.1,
       y1: 0.2,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -698,8 +711,9 @@ export function configure_layout_shapes() {
       x1: 1.2,
       y1: 0.4,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -708,8 +722,9 @@ export function configure_layout_shapes() {
       x1: 1.5,
       y1: 1,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -718,8 +733,9 @@ export function configure_layout_shapes() {
       x1: 2,
       y1: 2,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -728,8 +744,9 @@ export function configure_layout_shapes() {
       x1: 3,
       y1: 4,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -738,8 +755,9 @@ export function configure_layout_shapes() {
       x1: 6,
       y1: 10,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
 
     //imaginary
@@ -750,8 +768,9 @@ export function configure_layout_shapes() {
       x1: 1.1,
       y1: -0.2,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -760,8 +779,9 @@ export function configure_layout_shapes() {
       x1: 1.2,
       y1: -0.4,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -770,8 +790,9 @@ export function configure_layout_shapes() {
       x1: 1.5,
       y1: -1,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -780,8 +801,9 @@ export function configure_layout_shapes() {
       x1: 2,
       y1: -2,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -790,8 +812,9 @@ export function configure_layout_shapes() {
       x1: 3,
       y1: -4,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -800,8 +823,9 @@ export function configure_layout_shapes() {
       x1: 6,
       y1: -10,
       line: {
-        color: color_resistance_imaginary,
+        color: current_color.resistance_imaginary,
       },
+      opacity: 0.5,
     },
   ];
 
@@ -814,8 +838,9 @@ export function configure_layout_shapes() {
       x1: -0.9,
       y1: 0.2,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -824,8 +849,9 @@ export function configure_layout_shapes() {
       x1: -0.8,
       y1: 0.4,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -834,8 +860,9 @@ export function configure_layout_shapes() {
       x1: -0.5,
       y1: 1,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -844,8 +871,9 @@ export function configure_layout_shapes() {
       x1: -0,
       y1: 2,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -854,8 +882,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 4,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -864,8 +893,9 @@ export function configure_layout_shapes() {
       x1: 4,
       y1: 10,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     //negative
     {
@@ -875,8 +905,9 @@ export function configure_layout_shapes() {
       x1: -0.9,
       y1: -0.2,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -885,8 +916,9 @@ export function configure_layout_shapes() {
       x1: -0.8,
       y1: -0.4,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -895,8 +927,9 @@ export function configure_layout_shapes() {
       x1: -0.5,
       y1: -1,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -905,8 +938,9 @@ export function configure_layout_shapes() {
       x1: -0,
       y1: -2,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -915,8 +949,9 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: -4,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
     {
       type: 'circle',
@@ -925,10 +960,12 @@ export function configure_layout_shapes() {
       x1: 4,
       y1: -10,
       line: {
-        color: color_admittance_imaginary,
+        color: current_color.admittance_imaginary,
       },
+      opacity: 0.5,
     },
   ];
+
   if (!show_circles_adm) shapes_adm = [];
   if (!show_circles_adm) shapes_sus = [];
   if (!show_circles_res) shapes_res = [];

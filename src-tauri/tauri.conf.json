@@ -10,9 +10,11 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "rf-toolbox-app",
+        "title": "RF Toolbox",
         "width": 300,
         "height": 300,
+        "resizable": true,
+        "fullscreen": false,
         "devtools": false
       }
     ],

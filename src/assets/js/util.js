@@ -89,56 +89,56 @@ export function updateFromOldState() {
   //update freq units
   var opts = domFreqSel.options;
   for (var opt, j = 0; (opt = opts[j]); j++) {
-    if (opt.value == freqUnitToText(schematic[0].freq_unit.multiplier)) {
+    if (opt.value == freqUnitToText(settings.freq_unit.multiplier)) {
       domFreqSel.selectedIndex = j;
       break;
     }
   }
   opts = domSpanSel.options;
   for (opt, j = 0; (opt = opts[j]); j++) {
-    if (opt.value == freqUnitToText(schematic[0].span_unit.multiplier)) {
+    if (opt.value == freqUnitToText(settings.span_unit.multiplier)) {
       domSpanSel.selectedIndex = j;
       break;
     }
   }
 
-  domImp.value = Number(schematic[0].imp);
-  domFreq.value = Number(schematic[0].freq);
-  domSpan.value = Number(schematic[0].span);
-  domEr.value = Number(schematic[0].er);
-  z0 = Number(schematic[0].z0);
+  domImp.value = Number(settings.imp);
+  domFreq.value = Number(settings.freq);
+  domSpan.value = Number(settings.span);
+  domEr.value = Number(settings.er);
+  z0 = Number(settings.z0);
   domZo.value = z0;
   updateFromDom();
 }
 
 export function updateFromDom() {
-  schematic[0].freq = Number(domFreq.value);
-  schematic[0].span = Number(domSpan.value);
+  settings.freq = Number(domFreq.value);
+  settings.span = Number(domSpan.value);
   z0 = Number(domZo.value);
-  schematic[0].z0 = Number(domZo.value);
-  schematic[0].er = Number(domEr.value);
+  settings.z0 = Number(domZo.value);
+  settings.er = Number(domEr.value);
 
   //dropdowns
   if (domImpSel.value == 'diff') {
-    schematic[0].imp = 'diff';
+    settings.imp = 'diff';
     schematic[1].abs = [schematic[1].abs[0] * 2, schematic[1].abs[1] * 2];
   } else if (domImpSel.value == 'se') {
-    schematic[0].imp = 'se';
+    settings.imp = 'se';
     schematic[1].abs = [schematic[1].abs[0] / 2, schematic[1].abs[1] / 2];
   }
 
   update_schem_component(0, true, 1);
-  if (domFreqSel.value == 'Hz') schematic[0]['freq_unit'].multiplier = 1;
-  else if (domFreqSel.value == 'KHz') schematic[0]['freq_unit'].multiplier = 1e3;
-  else if (domFreqSel.value == 'MHz') schematic[0]['freq_unit'].multiplier = 1e6;
-  else if (domFreqSel.value == 'GHz') schematic[0]['freq_unit'].multiplier = 1e9;
-  else if (domFreqSel.value == 'THz') schematic[0]['freq_unit'].multiplier = 1e12;
+  if (domFreqSel.value == 'Hz') settings['freq_unit'].multiplier = 1;
+  else if (domFreqSel.value == 'KHz') settings['freq_unit'].multiplier = 1e3;
+  else if (domFreqSel.value == 'MHz') settings['freq_unit'].multiplier = 1e6;
+  else if (domFreqSel.value == 'GHz') settings['freq_unit'].multiplier = 1e9;
+  else if (domFreqSel.value == 'THz') settings['freq_unit'].multiplier = 1e12;
 
-  if (domSpanSel.value == 'Hz') schematic[0]['span_unit'].multiplier = 1;
-  else if (domSpanSel.value == 'KHz') schematic[0]['span_unit'].multiplier = 1e3;
-  else if (domSpanSel.value == 'MHz') schematic[0]['span_unit'].multiplier = 1e6;
-  else if (domSpanSel.value == 'GHz') schematic[0]['span_unit'].multiplier = 1e9;
-  else if (domSpanSel.value == 'THz') schematic[0]['span_unit'].multiplier = 1e12;
+  if (domSpanSel.value == 'Hz') settings['span_unit'].multiplier = 1;
+  else if (domSpanSel.value == 'KHz') settings['span_unit'].multiplier = 1e3;
+  else if (domSpanSel.value == 'MHz') settings['span_unit'].multiplier = 1e6;
+  else if (domSpanSel.value == 'GHz') settings['span_unit'].multiplier = 1e9;
+  else if (domSpanSel.value == 'THz') settings['span_unit'].multiplier = 1e12;
 
   update_smith_chart();
 }
@@ -150,8 +150,8 @@ export function updatespan(sch_num, obj, unitIndex = 0) {
   // 	else if (this_val == 'MHz') freq_multiplier = 1e6;
   // 	else if (this_val == 'GHz') freq_multiplier = 1e9;
   // 	else if (this_val == 'THz') freq_multiplier = 1e12;
-  //     schematic[0][element].unit=this_val;
-  //     schematic[0][element].multiplier=freq_multiplier;
+  //     settings[element].unit=this_val;
+  //     settings[element].multiplier=freq_multiplier;
   // } else {
   //     var sch_num = this_id.split('_')[1];
 
@@ -180,12 +180,12 @@ export function unitTextToNum(unit, freq_here) {
   if (unit[0] == 'f') return 1e-15;
   else if (unit[0] == 'p') return 1e-12;
   else if (unit[0] == 'n') return 1e-9;
-  else if (unit[0] == 'u') return 1e-6;
+  else if (unit[0] == 'u' || unit[0] == 'μ') return 1e-6;
   else if (unit == 'm') return 1; //tl can have unit of meters
   else if (unit[0] == 'm') return 1e-3; //milli...
   else if (unit[0] == 'K') return 1e3;
   else if (unit[0] == 'M') return 1e6;
-  else if (unit[0] == 'λ') return 3e8 / (freq_here * Math.sqrt(schematic[0].er));
+  else if (unit[0] == 'λ') return 3e8 / (freq_here * Math.sqrt(settings.er));
   else return 1;
 }
 

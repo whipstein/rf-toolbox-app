@@ -12,8 +12,8 @@
     <title>Smith Chart Tool</title>
 
     <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/sweetalert2@7.26.29/dist/sweetalert2.all.min.js"></script>
+    <!-- <script
+      src="https://cdn.jsdelivr.net/npm/sweetalert2@7.26.29/dist/sweetalert2.all.min.js"></script> -->
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css"
@@ -448,8 +448,9 @@
 
         <!-- Add VSWR & Q Circles -->
         <div class="row mt-5">
+          <h3>Add a VSWR, Q or Γ circle<small> (set to 0 to remove
+              it)</small></h3>
           <div class="col">
-            <h3>Add a VSWR circle<small> (set to 0 to remove it)</small></h3>
             <div class="input-group mb-3">
               <span class="input-group-text">VSWR</span>
               <input id="vswr_circle" value="0"
@@ -457,11 +458,16 @@
             </div>
           </div>
           <div class="col">
-            <h3>Add a constant-Q circle<small> (set to 0 to remove
-                it)</small></h3>
             <div class="input-group mb-3">
               <span class="input-group-text">Const Q</span>
               <input id="q_circle" value="0"
+                class="form-control">
+            </div>
+          </div>
+          <div class="col">
+            <div class="input-group mb-3">
+              <span class="input-group-text">Γ</span>
+              <input id="gamma_circle" value="0"
                 class="form-control">
             </div>
           </div>

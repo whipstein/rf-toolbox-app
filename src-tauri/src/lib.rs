@@ -9,7 +9,7 @@ use crate::rf_utils::{
     calc_gamma, calc_gamma_from_rc, calc_impedance, calc_rc, calc_z, calc_z_from_rc, get_c64_inv,
     get_unit_scale, unscale, Complex2Return, ComplexReturn, Unit,
 };
-use crate::smith::{arc_smith_points, calc_ri, find_smith_coord};
+use crate::smith::{arc_smith_points, calc_ri, calc_ri_new, calc_ri_lumped, find_smith_coord, calc_z_to_gamma, calc_ri_custom, calc_ri_bb, calc_ri_tline};
 use num_complex::Complex;
 use regex::Regex;
 use serde::ser::{SerializeStruct, Serializer};
@@ -142,9 +142,9 @@ async fn start_smith_chart_tool(app: AppHandle) -> tauri::Result<()> {
         format!("Smith-Chart-Tool-{}", i),
         WebviewUrl::App("smithChart.html".into()),
     )
-    .inner_size(1800.0, 1600.0)
-    .build()?;
-    // .open_devtools();
+    .inner_size(1500.0, 1600.0)
+    .build()?
+    .open_devtools();
 
     Ok(())
 }
@@ -152,36 +152,127 @@ async fn start_smith_chart_tool(app: AppHandle) -> tauri::Result<()> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_clipboard_manager::init())
-        .setup(|app| {
-            #[cfg(debug_assertions)]
-            app.get_webview_window("main").unwrap().open_devtools();
-            Ok(())
-        })
-        .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![
-            start_impedance_calculator,
-            calc_impedance,
-            start_matching_calculator,
-            calc_networks,
-            change_impedance,
-            copy_complex,
-            copy_complex_w_unit,
-            copy_complex_ri,
-            copy_rc,
-            copy_scalar,
-            copy_scalar_w_unit,
-            calc_match,
-            copy_pi_tee,
-            copy_ccll,
-            start_conjugate_match_calculator,
-            paste_impedance,
-            start_smith_chart_tool,
-            get_unit_scale,
-            get_c64_inv,
-            arc_smith_points,
-            calc_ri, find_smith_coord
-        ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    .plugin(tauri_plugin_devtools::init()) // initialize the plugin as early as possible
+    .plugin(tauri_plugin_clipboard_manager::init())
+    .setup(|app| {
+        #[cfg(debug_assertions)]
+        app.get_webview_window("main").unwrap().open_devtools();
+        Ok(())
+    })
+    .plugin(tauri_plugin_shell::init())
+    .invoke_handler(tauri::generate_handler![
+        start_impedance_calculator,
+        calc_impedance,
+        start_matching_calculator,
+        calc_networks,
+        change_impedance,
+        copy_complex,
+        copy_complex_w_unit,
+        copy_complex_ri,
+        copy_rc,
+        copy_scalar,
+        copy_scalar_w_unit,
+        calc_match,
+        copy_pi_tee,
+        copy_ccll,
+        start_conjugate_match_calculator,
+        paste_impedance,
+        start_smith_chart_tool,
+        get_unit_scale,
+        get_c64_inv,
+        arc_smith_points,
+        calc_ri, calc_ri_new, find_smith_coord, calc_z_to_gamma, calc_ri_lumped, calc_ri_custom, calc_ri_bb, calc_ri_tline
+    ])
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
 }
+
+// #[cfg_attr(mobile, tauri::mobile_entry_point)]
+// pub fn run() {
+//     tauri::Builder::default()
+//     .plugin(tauri_plugin_clipboard_manager::init())
+//     .setup(|app| {
+//         // create the log plugin as usual, but call split() instead of build()
+//         let (tauri_plugin_log, max_level, logger) = tauri_plugin_log::Builder::new().split(app.handle())?;
+
+//         // on debug builds, set up the DevTools plugin and pipe the logger from tauri-plugin-log
+//         #[cfg(debug_assertions)]
+//         {
+//             let mut devtools_builder = tauri_plugin_devtools::Builder::default();
+//             devtools_builder.attach_logger(logger);
+//             app.handle().plugin(devtools_builder.init())?;
+//         }
+//         // on release builds, only attach the logger from tauri-plugin-log
+//         #[cfg(not(debug_assertions))]
+//         {
+//             tauri_plugin_log::attach_logger(max_level, logger);
+//         }
+
+//         app.handle().plugin(tauri_plugin_log)?;
+
+//         Ok(())
+//     })
+//     .plugin(tauri_plugin_shell::init())
+//     .invoke_handler(tauri::generate_handler![
+//         start_impedance_calculator,
+//         calc_impedance,
+//         start_matching_calculator,
+//         calc_networks,
+//         change_impedance,
+//         copy_complex,
+//         copy_complex_w_unit,
+//         copy_complex_ri,
+//         copy_rc,
+//         copy_scalar,
+//         copy_scalar_w_unit,
+//         calc_match,
+//         copy_pi_tee,
+//         copy_ccll,
+//         start_conjugate_match_calculator,
+//         paste_impedance,
+//         start_smith_chart_tool,
+//         get_unit_scale,
+//         get_c64_inv,
+//         arc_smith_points,
+//         calc_ri, find_smith_coord, calc_z_to_gamma
+//     ])
+//     .run(tauri::generate_context!())
+//     .expect("error while running tauri application");
+// }
+
+// #[cfg_attr(mobile, tauri::mobile_entry_point)]
+// pub fn run() {
+//     tauri::Builder::default()
+//         .plugin(tauri_plugin_clipboard_manager::init())
+//         .setup(|app| {
+//             #[cfg(debug_assertions)]
+//             app.get_webview_window("main").unwrap().open_devtools();
+//             Ok(())
+//         })
+//         .plugin(tauri_plugin_shell::init())
+//         .invoke_handler(tauri::generate_handler![
+//             start_impedance_calculator,
+//             calc_impedance,
+//             start_matching_calculator,
+//             calc_networks,
+//             change_impedance,
+//             copy_complex,
+//             copy_complex_w_unit,
+//             copy_complex_ri,
+//             copy_rc,
+//             copy_scalar,
+//             copy_scalar_w_unit,
+//             calc_match,
+//             copy_pi_tee,
+//             copy_ccll,
+//             start_conjugate_match_calculator,
+//             paste_impedance,
+//             start_smith_chart_tool,
+//             get_unit_scale,
+//             get_c64_inv,
+//             arc_smith_points,
+//             calc_ri, find_smith_coord, calc_z_to_gamma
+//         ])
+//         .run(tauri::generate_context!())
+//         .expect("error while running tauri application");
+// }

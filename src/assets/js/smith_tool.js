@@ -2,10 +2,10 @@ const { invoke } = window.__TAURI__.core;
 import {
   vmin_distanceEl,
   vmax_distanceEl,
-  schematic,
   dataPoints,
   vswr,
   constQ,
+  const_gamma,
   z0,
   fontsize,
   color_of_smith_curves,
@@ -14,51 +14,90 @@ import {
   precision,
   onchangeEl,
   clickEl,
+  current_color,
+  schematic,
+  ParallelResistor,
+  SeriesResistor,
+  ParallelCapacitor,
+  SeriesCapacitor,
+  ParallelInductor,
+  SeriesInductor,
+  ShortStub,
+  OpenStub,
+  Transformer,
+  RLC,
+  CustomZ,
+  TLine,
+  settings,
 } from './defaults.js';
 import { layout, configure_layout_shapes, draw_schematic, show_labels_DP, show_labels_res, show_labels_adm } from './draw.js';
 import { customMarkers, drawMakerTable } from './marker.js';
 import { one_over_complex, expo, unitTextToNum, domFreqSel } from './util.js';
 
-export function clicked_cell(type) {
+export async function clicked_cell(type) {
+  console.log('CLICK');
   if (type == 'pr') {
-    schematic.push({ type: 'pr', real: 0, imaginary: 0, abs: [50], unit: ['Ω'], tol: 0 });
+    // schematic.push({ type: 'pr', real: 0, imaginary: 0, abs: [50], unit: ['Ω'], tol: 0, line_zo: 50.0, line_length: 0.0 });
+    schematic.push(new ParallelResistor([50.0], ['Ω'], 0.0));
   } else if (type == 'sr') {
-    schematic.push({ type: 'sr', real: 0, imaginary: 0, abs: [50], unit: ['Ω'], tol: 0 });
+    // schematic.push({ type: 'sr', real: 0, imaginary: 0, abs: [50], unit: ['Ω'], tol: 0, line_zo: 50.0, line_length: 0.0 });
+    schematic.push(new SeriesResistor([50.0], ['Ω'], 0.0));
   } else if (type == 'si') {
-    schematic.push({ type: 'si', real: 0, imaginary: 0, abs: [20, 1], unit: ['Q', 'pH'], tol: 0 });
+    // schematic.push({ type: 'si', real: 0, imaginary: 0, abs: [20, 1], unit: ['Q', 'pH'], tol: 0, line_zo: 50.0, line_length: 0.0 });
+    schematic.push(new SeriesInductor([20.0, 10.0], ['Q', 'pH'], 0.0));
   } else if (type == 'pi') {
-    schematic.push({ type: 'pi', real: 0, imaginary: 0, abs: [20, 1], unit: ['Q', 'pH'], tol: 0 });
+    // schematic.push({ type: 'pi', real: 0, imaginary: 0, abs: [20, 1], unit: ['Q', 'pH'], tol: 0, line_zo: 50.0, line_length: 0.0 });
+    schematic.push(new ParallelInductor([20.0, 10.0], ['Q', 'pH'], 0.0));
   } else if (type == 'sc') {
-    schematic.push({ type: 'sc', real: 0, imaginary: 0, abs: [0, 1], unit: ['Q', 'fF'], tol: 0 });
+    // schematic.push({ type: 'sc', real: 0, imaginary: 0, abs: [0, 1], unit: ['Q', 'fF'], tol: 0, line_zo: 50.0, line_length: 0.0 });
+    schematic.push(new SeriesCapacitor([0.0, 20.0], ['Q', 'fF'], 0.0));
   } else if (type == 'pc') {
-    schematic.push({ type: 'pc', real: 0, imaginary: 0, abs: [0, 1], unit: ['Q', 'fF'], tol: 0 });
+    // schematic.push({ type: 'pc', real: 0, imaginary: 0, abs: [0, 1], unit: ['Q', 'fF'], tol: 0, line_zo: 50.0, line_length: 0.0 });
+    schematic.push(new ParallelCapacitor([0.0, 20.0], ['Q', 'fF'], 0.0));
   } else if (type == 'tl') {
-    schematic.push({ type: 'tl', line_length: 1e-6, abs: [1], line_zo: 50, unit: ['um'], real: 0, imaginary: 0, tol: 0 });
+    // schematic.push({ type: 'tl', line_length: 1e-6, abs: [1], line_zo: 50, unit: ['μm'], real: 0, imaginary: 0, tol: 0 });
+    schematic.push(new TLine([100.0], ['μm'], 50.0));
   } else if (type == 'ss') {
-    schematic.push({ type: 'ss', line_length: 1e-6, abs: [1], line_zo: 50, unit: ['um'], real: 0, imaginary: 0, tol: 0 });
+    // schematic.push({ type: 'ss', line_length: 1e-6, abs: [1], line_zo: 50, unit: ['μm'], real: 0, imaginary: 0, tol: 0 });
+    schematic.push(new ShortStub([100.0], ['μm'], 50.0));
   } else if (type == 'so') {
-    schematic.push({ type: 'so', line_length: 1e-6, abs: [1], line_zo: 50, unit: ['um'], real: 0, imaginary: 0, tol: 0 });
+    // schematic.push({ type: 'so', line_length: 1e-6, abs: [1], line_zo: 50, unit: ['μm'], real: 0, imaginary: 0, tol: 0 });
+    schematic.push(new OpenStub([100.0], ['μm'], 50.0));
   } else if (type == 'xfmr') {
-    schematic.push({ type: 'xfmr', real: 0, imaginary: 0, abs: [20, 1, 1, 0.4], unit: ['Q', 'pH', 'pH', 'k'], tol: 0 });
+    // schematic.push({
+    //   type: 'xfmr',
+    //   real: 0,
+    //   imaginary: 0,
+    //   abs: [20, 1, 1, 0.4],
+    //   unit: ['Q', 'pH', 'pH', 'k'],
+    //   tol: 0,
+    //   line_zo: 50.0,
+    //   line_length: 0.0,
+    // });
+    schematic.push(new ParallelInductor([20.0, 10.0, 10.0, 0.4], ['Q', 'pH', 'pH', 'k'], 0.0));
   } else if (type == 'rlc') {
-    schematic.push({ type: 'rlc', real: 0, imaginary: 0, abs: [50, 1, 1], unit: ['Ω', 'pH', 'fF'], tol: 0 });
+    // schematic.push({ type: 'rlc', real: 0, imaginary: 0, abs: [50, 1, 1], unit: ['Ω', 'pH', 'fF'], tol: 0, line_zo: 50.0, line_length: 0.0 });
+    schematic.push(new RLC([1.0, 10.0, 20.0], ['Ω', 'pH', 'fF'], 0.0));
   } else if (type == 'customZ') {
-    schematic.push({
-      type: 'customZ',
-      real: 0,
-      imaginary: 0,
-      abs: [50, 1, 1],
-      unit: ['Ω', 'nH', 'pF'],
-      lut: [[2440e6, 50, 50]],
-      interp: 'linear',
-      raw: '2440e6,50,50',
-      tol: 0,
-    });
+    // schematic.push({
+    //   type: 'customZ',
+    //   real: 0,
+    //   imaginary: 0,
+    //   abs: [50, 1, 1],
+    //   unit: ['Ω', 'nH', 'pF'],
+    //   lut: [[2440e6, 50, 50]],
+    //   interp: 'linear',
+    //   raw: '2440e6,50,50',
+    //   tol: 0,
+    //   line_zo: 50.0,
+    //   line_length: 0.0,
+    // });
+    schematic.push(new CustomZ([[280e9, 50.0, 0.0]], 'linear', '280e9,50.0,0.0'));
   }
   update_smith_chart();
 }
 
-export function update_schem_abs(target_num, obj, absCounter) {
+export async function update_schem_abs(target_num, obj, absCounter) {
   var complex = obj.name;
   // console.log('dbg0',target_num, obj.value, complex)
   switch (schematic[target_num].type) {
@@ -87,21 +126,25 @@ export function update_schem_abs(target_num, obj, absCounter) {
       schematic[target_num].abs[absCounter] = Number(obj.value);
       break;
   }
+
   update_smith_chart();
 }
 
 export async function update_schem_component(freq_here, save_impedance, sch_index) {
+  console.log('freq_here = ' + freq_here + ', save_impedance = ' + save_impedance + ', sch_index = ' + sch_index);
   var re_here = 0;
   var im_here = 0;
   var ln_here = 0;
   var scaler = [];
   var i = 0;
+  console.log(sch_index);
+  console.log(schematic[sch_index]);
   for (i = 0; i < schematic[sch_index].unit.length; i++) {
     scaler[i] = unitTextToNum(schematic[sch_index].unit[i], freq_here);
   }
 
   let temp_diff = false;
-  if (schematic[0].imp == 'diff') {
+  if (settings.imp == 'diff') {
     temp_diff = true;
   }
   let lut = [[0.0, 0.0, 0.0]];
@@ -116,26 +159,16 @@ export async function update_schem_component(freq_here, save_impedance, sch_inde
     freq: freq_here,
     z0: z0,
     diff: temp_diff,
-    verbose: false,
+    verbose: true,
   })
     .then((result) => {
-      re_here = result[0];
-      im_here = result[1];
-      ln_here = result[2];
+      [re_here, im_here, ln_here] = result;
 
       if (save_impedance) {
         var re_out, im_out;
 
-        if (schematic[sch_index].type == 'xfmr') {
-          var out = one_over_complex(re_here[0], im_here[0]);
-          var m = one_over_complex(re_here[1], im_here[1]);
-          out = one_over_complex(out[0] + m[0], out[1] + m[1]);
-          re_out = out[0];
-          im_out = out[1];
-        } else {
-          re_out = re_here;
-          im_out = im_here;
-        }
+        re_out = re_here;
+        im_out = im_here;
 
         if (Math.abs(re_out) < 0.1 && re_out != 0) {
           schematic[sch_index].real = expo(re_out, 2);
@@ -174,7 +207,7 @@ export function impedanceToReflectionCoefficient(real_old, imag_old, z0) {
   return [reflectio_coeff_real, reflectio_coeff_imag, reflection_mag, reflection_phase];
 }
 
-export function calcOutputValues(real_old, imag_old, temp_array) {
+export async function calcOutputValues(real_old, imag_old, temp_array) {
   //Update the impedance box
   var txt = '<div class="text_box">';
   txt += (real_old * z0).toFixed(precision);
@@ -196,7 +229,19 @@ export function calcOutputValues(real_old, imag_old, temp_array) {
 
   //Calculate the reflection coefficient -current_admittance (z0-zimp) / (z0+zimp)
   var reflectio_coeff_real, reflectio_coeff_imag, reflection_mag, reflection_phase;
+
   [reflectio_coeff_real, reflectio_coeff_imag, reflection_mag, reflection_phase] = impedanceToReflectionCoefficient(real_old, imag_old, z0);
+  // await invoke('calc_z_to_gamma', {
+  //   re: parseFloat(real_old),
+  //   im: parseFloat(imag_old),
+  //   z0: parseFloat(z0),
+  // })
+  //   .then((result) => {
+  //     [reflectio_coeff_real, reflectio_coeff_imag, reflection_mag, reflection_phase] = result;
+  //   })
+  //   .catch((error) => {
+  //     console.log('ERROR (smith_tool.js: calcOutputValues: ' + error);
+  //   });
   txt = '<div class="text_box">' + reflectio_coeff_real.toFixed(precision);
   if (reflectio_coeff_imag < 0) txt += ' - ';
   else txt += ' + ';
@@ -274,9 +319,9 @@ export async function update_smith_chart() {
   //Update the layout variable
   layout.shapes = configure_layout_shapes();
   //Calculate and verify freqeuencies...
-  freq = schematic[0].freq * schematic[0].freq_unit.multiplier;
-  let span_freq = schematic[0].span * schematic[0].span_unit.multiplier;
-  //console.log(schematic[0].freq * schematic[0].freq_unit.multiplier,schematic[0].span * schematic[0].span_unit.multiplier)
+  freq = settings.freq * settings.freq_multiplier;
+  let span_freq = settings.span * settings.span_multiplier;
+  //console.log(settings.freq * settings.freq_multiplier,settings.span * settings.span_multiplier)
   if (freq < span_freq) {
     swal({
       type: 'error',
@@ -309,22 +354,23 @@ export async function update_smith_chart() {
   var x0, x1, y0, y1;
 
   //update black box
-  await update_schem_component(0, true, 1);
+  var tmp = await update_schem_component(0, true, 0);
   var schemEl = document.getElementById('schematic');
   schemEl.innerHTML = '';
-  var newDiv = draw_schematic(1);
+  var newDiv = draw_schematic(0);
   schemEl.appendChild(newDiv);
   // addEvents();
 
   //Create an array of all different arcs to draw. There will be 1 + 2 ^ (number of tolerances) arcs (every max and min combination, plus the ideal case)
-  var originalSchematic = JSON.parse(JSON.stringify(schematic));
+  // var originalSchematic = JSON.parse(JSON.stringify(schematic));
+  var originalSchematic = Object.assign(Object.create(Object.getPrototypeOf(schematic)), schematic);
   var tolElements = []; //always 1 arc
   var numTolElements = 0;
   var i, j, x;
   for (i = 1; i < schematic.length; i++) if (schematic[i].tol > 0) numTolElements++;
   var arrLen = Math.pow(2, numTolElements);
   var tolJumper = 2;
-  for (i = 1; i < schematic.length; i++) {
+  for (i = 0; i < schematic.length; i++) {
     tolElements[i] = Array(arrLen);
     tolElements[i].fill(1);
     if (schematic[i].tol > 0) {
@@ -347,8 +393,8 @@ export async function update_smith_chart() {
   // console.log(tolElements);
 
   var idealArc = false;
-  for (let xx = 0; xx < tolElements[1].length; xx++) {
-    if (xx == tolElements[1].length - 1) idealArc = true;
+  for (let xx = 0; xx < tolElements[0].length; xx++) {
+    if (xx == tolElements[0].length - 1) idealArc = true;
     if (idealArc) var arcColor = 'rgb(0, 0, 0)';
     else var arcColor = 'rgb(100, 100, 100)';
 
@@ -361,10 +407,10 @@ export async function update_smith_chart() {
     }
 
     dataPoints.length = 0;
-    await update_schem_component(0, true, 1);
+    await update_schem_component(0, true, 0);
     for (i = 0; i <= span_res * 2; i++) {
-      span_impedance_re[i] = Number(schematic[1].real);
-      span_impedance_im[i] = Number(schematic[1].imaginary);
+      span_impedance_re[i] = Number(schematic[0].real);
+      span_impedance_im[i] = Number(schematic[0].imaginary);
     }
     for (i = 2; i < schematic.length; i++) {
       //If tol is defined, loop this 3 times with min, typ and max value
@@ -404,219 +450,257 @@ export async function update_smith_chart() {
         var start = [];
         var start_impedance = [];
 
-        if (schematic[i].type == 'ss' || schematic[i].type == 'so') {
-          //if the stub is longer than 0.5 waves then there is a full circle. Trim to 1 wave so user can see if there are multiple loops
-          var wave_length = 3e8 / (frequency_at_sp * Math.sqrt(schematic[0].er));
-          //if (ln_length>wave_length) ln_length = wave_length + ln_length % wave_length;
-          //for "ss" matching, can't assume that we start at 0 length
-          if (ln_length < 0.5 * wave_length) var start_at_qtr_wl = wave_length / 4;
-          else start_at_qtr_wl = 0;
-          start_impedance[0] = span_impedance_re[sp];
-          start_impedance[1] = span_impedance_im[sp];
-          start = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
-          await invoke('arc_smith_points', {
-            x1: parseFloat(start[0]),
-            y1: parseFloat(start[1]),
-            x2: parseFloat(ln_length),
-            y2: parseFloat(schematic[i].line_zo),
-            type: schematic[i].type,
-            rotate: true,
-            beta: (2 * Math.PI * frequency_at_sp * Math.sqrt(schematic[0].er)) / 3e8,
-            start_at_qtr_wl: parseFloat(start_at_qtr_wl),
-            z0: schematic[0].z0,
-            resolution: parseInt(resolution),
-            verbose: false,
+        console.log(schematic);
+        start_impedance[0] = span_impedance_re[sp];
+        start_impedance[1] = span_impedance_im[sp];
+        await invoke('arc_smith_points', {
+          x1: parseFloat(schematic[i - 1].rin),
+          y1: parseFloat(schematic[i - 1].xin),
+          x2: parseFloat(schematic[i].rin),
+          y2: parseFloat(schematic[i].xin),
+          type: 'impedance',
+          rotate: false,
+          beta: 0.0,
+          start_at_qtr_wl: 0.0,
+          z0: settings.z0,
+          resolution: parseInt(resolution),
+          verbose: false,
+        })
+          .then((result) => {
+            temp_array = [
+              result.x_coord,
+              result.y_coord,
+              result.end_x_coord,
+              result.end_y_coord,
+              result.real_old,
+              result.imag_old,
+              result.start_x_coord,
+              result.start_y_coord,
+              result.x1,
+              result.y1,
+              result.x2,
+              result.y2,
+            ];
+            span_impedance_re[sp] = span_impedance_re[sp] + re;
+            span_impedance_im[sp] = span_impedance_im[sp] + im;
           })
-            .then((result) => {
-              temp_array = [
-                result.x_coord,
-                result.y_coord,
-                result.end_x_coord,
-                result.end_y_coord,
-                result.real_old,
-                result.imag_old,
-                result.start_x_coord,
-                result.start_y_coord,
-                result.x1,
-                result.y1,
-                result.x2,
-                result.y2,
-              ];
-              let schem_inv = one_over_complex(temp_array[4], temp_array[5]);
-              span_impedance_re[sp] = schem_inv[0];
-              span_impedance_im[sp] = schem_inv[1];
-            })
-            .catch((error) => {
-              console.log('ERROR (smith_tool.js: arc_smith_points: transmission_line): ' + error);
-            });
-        } else if (schematic[i].type[0] == 'p' || schematic[i].type == 'rlc' || schematic[i].type == 'rc' || schematic[i].type == 'rl') {
-          //For parallel elements plotted on rotated graph....
-          start_impedance[0] = span_impedance_re[sp];
-          start_impedance[1] = span_impedance_im[sp];
-          start = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
-          var schem_inv = one_over_complex(re, im);
-          await invoke('arc_smith_points', {
-            x1: parseFloat(start[0]),
-            y1: parseFloat(start[1]),
-            x2: parseFloat(start[0] + schem_inv[0]),
-            y2: parseFloat(start[1] + schem_inv[1]),
-            type: schematic[i].type,
-            rotate: true,
-            beta: 0.0,
-            start_at_qtr_wl: 0.0,
-            z0: schematic[0].z0,
-            resolution: parseInt(resolution),
-            verbose: false,
-          })
-            .then((result) => {
-              temp_array = [
-                result.x_coord,
-                result.y_coord,
-                result.end_x_coord,
-                result.end_y_coord,
-                result.real_old,
-                result.imag_old,
-                result.start_x_coord,
-                result.start_y_coord,
-                result.x1,
-                result.y1,
-                result.x2,
-                result.y2,
-              ];
-              schem_inv = one_over_complex(start[0] + schem_inv[0], start[1] + schem_inv[1]);
-              span_impedance_re[sp] = schem_inv[0];
-              span_impedance_im[sp] = schem_inv[1];
-            })
-            .catch((error) => {
-              console.log('ERROR (smith_tool.js: arc_smith_points: parallel): ' + error);
-            });
-        } else if (schematic[i].type[0] == 's' || schematic[i].type[0] == 'b' || schematic[i].type == 'customZ') {
-          //For series elements plotted on normal curves....
-          start_impedance[0] = span_impedance_re[sp];
-          start_impedance[1] = span_impedance_im[sp];
-          await invoke('arc_smith_points', {
-            x1: parseFloat(span_impedance_re[sp]),
-            y1: parseFloat(span_impedance_im[sp]),
-            x2: parseFloat(re + span_impedance_re[sp]),
-            y2: parseFloat(im + span_impedance_im[sp]),
-            type: 'impedance',
-            rotate: false,
-            beta: 0.0,
-            start_at_qtr_wl: 0.0,
-            z0: schematic[0].z0,
-            resolution: parseInt(resolution),
-            verbose: false,
-          })
-            .then((result) => {
-              temp_array = [
-                result.x_coord,
-                result.y_coord,
-                result.end_x_coord,
-                result.end_y_coord,
-                result.real_old,
-                result.imag_old,
-                result.start_x_coord,
-                result.start_y_coord,
-                result.x1,
-                result.y1,
-                result.x2,
-                result.y2,
-              ];
-              span_impedance_re[sp] = span_impedance_re[sp] + re;
-              span_impedance_im[sp] = span_impedance_im[sp] + im;
-            })
-            .catch((error) => {
-              console.log('ERROR (smith_tool.js: arc_smith_points: series): ' + error);
-            });
-        } else if (schematic[i].type == 'tl') {
-          //For transmission lines...
-          start_impedance[0] = span_impedance_re[sp];
-          start_impedance[1] = span_impedance_im[sp];
-          await invoke('arc_smith_points', {
-            x1: parseFloat(span_impedance_re[sp]),
-            y1: parseFloat(span_impedance_im[sp]),
-            x2: parseFloat(ln_length),
-            y2: parseFloat(schematic[i].line_zo),
-            type: 'transmission_line',
-            rotate: false,
-            beta: (2 * Math.PI * frequency_at_sp * Math.sqrt(schematic[0].er)) / 3e8,
-            start_at_qtr_wl: 0.0,
-            z0: schematic[0].z0,
-            resolution: parseInt(resolution),
-            verbose: false,
-          })
-            .then((result) => {
-              temp_array = [
-                result.x_coord,
-                result.y_coord,
-                result.end_x_coord,
-                result.end_y_coord,
-                result.real_old,
-                result.imag_old,
-                result.start_x_coord,
-                result.start_y_coord,
-                result.x1,
-                result.y1,
-                result.x2,
-                result.y2,
-              ];
-              span_impedance_re[sp] = temp_array[4];
-              span_impedance_im[sp] = temp_array[5];
-            })
-            .catch((error) => {
-              console.log('ERROR (smith_tool.js: arc_smith_points: transmission_line): ' + error);
-            });
-        } else if (schematic[i].type == 'xfmr') {
-          //For series elements plotted on normal curves....
-          start_impedance[0] = span_impedance_re[sp];
-          start_impedance[1] = span_impedance_im[sp];
-          span_impedance_re[sp] = span_impedance_re[sp] + re[0];
-          span_impedance_im[sp] = span_impedance_im[sp] + im[0];
-          start = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
-          var schem_inv = one_over_complex(re[1], im[1]);
-          var schem_inv = one_over_complex(start[0] + schem_inv[0], start[1] + schem_inv[1]);
-          span_impedance_re[sp] = schem_inv[0];
-          span_impedance_im[sp] = schem_inv[1];
-          span_impedance_re[sp] = span_impedance_re[sp] + re[2];
-          span_impedance_im[sp] = span_impedance_im[sp] + im[2];
-          var start = one_over_complex(start_impedance[0], start_impedance[1]);
-          var end = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
+          .catch((error) => {
+            console.log('ERROR (smith_tool.js: arc_smith_points: series): ' + error);
+          });
 
-          await invoke('arc_smith_points', {
-            x1: parseFloat(start[0]),
-            y1: parseFloat(start[1]),
-            x2: parseFloat(end[0]),
-            y2: parseFloat(end[1]),
-            type: schematic[i].type,
-            rotate: true,
-            beta: 0.0,
-            start_at_qtr_wl: 0.0,
-            z0: schematic[0].z0,
-            resolution: parseInt(resolution),
-            verbose: false,
-          })
-            .then((result) => {
-              temp_array = [
-                result.x_coord,
-                result.y_coord,
-                result.end_x_coord,
-                result.end_y_coord,
-                result.real_old,
-                result.imag_old,
-                result.start_x_coord,
-                result.start_y_coord,
-                result.x1,
-                result.y1,
-                result.x2,
-                result.y2,
-              ];
-              span_impedance_re[sp] = temp_array[4];
-              span_impedance_im[sp] = temp_array[5];
-            })
-            .catch((error) => {
-              console.log('ERROR (smith_tool.js: arc_smith_points: transmission_line): ' + error);
-            });
-        }
+        // if (schematic[i].type == 'ss' || schematic[i].type == 'so') {
+        //   //if the stub is longer than 0.5 waves then there is a full circle. Trim to 1 wave so user can see if there are multiple loops
+        //   var wave_length = 3e8 / (frequency_at_sp * Math.sqrt(settings.er));
+        //   //if (ln_length>wave_length) ln_length = wave_length + ln_length % wave_length;
+        //   //for "ss" matching, can't assume that we start at 0 length
+        //   if (ln_length < 0.5 * wave_length) var start_at_qtr_wl = wave_length / 4;
+        //   else start_at_qtr_wl = 0;
+        //   start_impedance[0] = span_impedance_re[sp];
+        //   start_impedance[1] = span_impedance_im[sp];
+        //   start = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
+        //   await invoke('arc_smith_points', {
+        //     x1: parseFloat(start[0]),
+        //     y1: parseFloat(start[1]),
+        //     x2: parseFloat(ln_length),
+        //     y2: parseFloat(schematic[i].line_zo),
+        //     type: schematic[i].type,
+        //     rotate: true,
+        //     beta: (2 * Math.PI * frequency_at_sp * Math.sqrt(settings.er)) / 3e8,
+        //     start_at_qtr_wl: parseFloat(start_at_qtr_wl),
+        //     z0: settings.z0,
+        //     resolution: parseInt(resolution),
+        //     verbose: false,
+        //   })
+        //     .then((result) => {
+        //       temp_array = [
+        //         result.x_coord,
+        //         result.y_coord,
+        //         result.end_x_coord,
+        //         result.end_y_coord,
+        //         result.real_old,
+        //         result.imag_old,
+        //         result.start_x_coord,
+        //         result.start_y_coord,
+        //         result.x1,
+        //         result.y1,
+        //         result.x2,
+        //         result.y2,
+        //       ];
+        //       let schem_inv = one_over_complex(temp_array[4], temp_array[5]);
+        //       span_impedance_re[sp] = schem_inv[0];
+        //       span_impedance_im[sp] = schem_inv[1];
+        //     })
+        //     .catch((error) => {
+        //       console.log('ERROR (smith_tool.js: arc_smith_points: transmission_line): ' + error);
+        //     });
+        // } else if (schematic[i].type[0] == 'p' || schematic[i].type == 'rlc' || schematic[i].type == 'rc' || schematic[i].type == 'rl') {
+        //   //For parallel elements plotted on rotated graph....
+        //   start_impedance[0] = span_impedance_re[sp];
+        //   start_impedance[1] = span_impedance_im[sp];
+        //   start = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
+        //   var schem_inv = one_over_complex(re, im);
+        //   await invoke('arc_smith_points', {
+        //     x1: parseFloat(start[0]),
+        //     y1: parseFloat(start[1]),
+        //     x2: parseFloat(start[0] + schem_inv[0]),
+        //     y2: parseFloat(start[1] + schem_inv[1]),
+        //     type: schematic[i].type,
+        //     rotate: true,
+        //     beta: 0.0,
+        //     start_at_qtr_wl: 0.0,
+        //     z0: settings.z0,
+        //     resolution: parseInt(resolution),
+        //     verbose: false,
+        //   })
+        //     .then((result) => {
+        //       temp_array = [
+        //         result.x_coord,
+        //         result.y_coord,
+        //         result.end_x_coord,
+        //         result.end_y_coord,
+        //         result.real_old,
+        //         result.imag_old,
+        //         result.start_x_coord,
+        //         result.start_y_coord,
+        //         result.x1,
+        //         result.y1,
+        //         result.x2,
+        //         result.y2,
+        //       ];
+        //       schem_inv = one_over_complex(start[0] + schem_inv[0], start[1] + schem_inv[1]);
+        //       span_impedance_re[sp] = schem_inv[0];
+        //       span_impedance_im[sp] = schem_inv[1];
+        //     })
+        //     .catch((error) => {
+        //       console.log('ERROR (smith_tool.js: arc_smith_points: parallel): ' + error);
+        //     });
+        // } else if (schematic[i].type[0] == 's' || schematic[i].type[0] == 'b' || schematic[i].type == 'xfmr' || schematic[i].type == 'customZ') {
+        //   //For series elements plotted on normal curves....
+        //   start_impedance[0] = span_impedance_re[sp];
+        //   start_impedance[1] = span_impedance_im[sp];
+        //   await invoke('arc_smith_points', {
+        //     x1: parseFloat(span_impedance_re[sp]),
+        //     y1: parseFloat(span_impedance_im[sp]),
+        //     x2: parseFloat(re + span_impedance_re[sp]),
+        //     y2: parseFloat(im + span_impedance_im[sp]),
+        //     type: 'impedance',
+        //     rotate: false,
+        //     beta: 0.0,
+        //     start_at_qtr_wl: 0.0,
+        //     z0: settings.z0,
+        //     resolution: parseInt(resolution),
+        //     verbose: false,
+        //   })
+        //     .then((result) => {
+        //       temp_array = [
+        //         result.x_coord,
+        //         result.y_coord,
+        //         result.end_x_coord,
+        //         result.end_y_coord,
+        //         result.real_old,
+        //         result.imag_old,
+        //         result.start_x_coord,
+        //         result.start_y_coord,
+        //         result.x1,
+        //         result.y1,
+        //         result.x2,
+        //         result.y2,
+        //       ];
+        //       span_impedance_re[sp] = span_impedance_re[sp] + re;
+        //       span_impedance_im[sp] = span_impedance_im[sp] + im;
+        //     })
+        //     .catch((error) => {
+        //       console.log('ERROR (smith_tool.js: arc_smith_points: series): ' + error);
+        //     });
+        // } else if (schematic[i].type == 'tl') {
+        //   //For transmission lines...
+        //   start_impedance[0] = span_impedance_re[sp];
+        //   start_impedance[1] = span_impedance_im[sp];
+        //   await invoke('arc_smith_points', {
+        //     x1: parseFloat(span_impedance_re[sp]),
+        //     y1: parseFloat(span_impedance_im[sp]),
+        //     x2: parseFloat(ln_length),
+        //     y2: parseFloat(schematic[i].line_zo),
+        //     type: 'transmission_line',
+        //     rotate: false,
+        //     beta: (2 * Math.PI * frequency_at_sp * Math.sqrt(settings.er)) / 3e8,
+        //     start_at_qtr_wl: 0.0,
+        //     z0: settings.z0,
+        //     resolution: parseInt(resolution),
+        //     verbose: false,
+        //   })
+        //     .then((result) => {
+        //       temp_array = [
+        //         result.x_coord,
+        //         result.y_coord,
+        //         result.end_x_coord,
+        //         result.end_y_coord,
+        //         result.real_old,
+        //         result.imag_old,
+        //         result.start_x_coord,
+        //         result.start_y_coord,
+        //         result.x1,
+        //         result.y1,
+        //         result.x2,
+        //         result.y2,
+        //       ];
+        //       span_impedance_re[sp] = temp_array[4];
+        //       span_impedance_im[sp] = temp_array[5];
+        //     })
+        //     .catch((error) => {
+        //       console.log('ERROR (smith_tool.js: arc_smith_points: transmission_line): ' + error);
+        //     });
+        // } else if (schematic[i].type == 'xfmr') {
+        //   //For series elements plotted on normal curves....
+        //   start_impedance[0] = span_impedance_re[sp];
+        //   start_impedance[1] = span_impedance_im[sp];
+        //   span_impedance_re[sp] = span_impedance_re[sp] + re[0];
+        //   span_impedance_im[sp] = span_impedance_im[sp] + im[0];
+        //   start = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
+        //   var schem_inv = one_over_complex(re[1], im[1]);
+        //   var schem_inv = one_over_complex(start[0] + schem_inv[0], start[1] + schem_inv[1]);
+        //   span_impedance_re[sp] = schem_inv[0];
+        //   span_impedance_im[sp] = schem_inv[1];
+        //   span_impedance_re[sp] = span_impedance_re[sp] + re[2];
+        //   span_impedance_im[sp] = span_impedance_im[sp] + im[2];
+        //   var start = one_over_complex(start_impedance[0], start_impedance[1]);
+        //   var end = one_over_complex(span_impedance_re[sp], span_impedance_im[sp]);
+
+        //   await invoke('arc_smith_points', {
+        //     x1: parseFloat(span_impedance_re[sp]),
+        //     y1: parseFloat(span_impedance_im[sp]),
+        //     x2: parseFloat(re + span_impedance_re[sp]),
+        //     y2: parseFloat(im + span_impedance_im[sp]),
+        //     type: schematic[i].type,
+        //     rotate: false,
+        //     beta: 0.0,
+        //     start_at_qtr_wl: 0.0,
+        //     z0: settings.z0,
+        //     resolution: parseInt(resolution),
+        //     verbose: false,
+        //   })
+        //     .then((result) => {
+        //       temp_array = [
+        //         result.x_coord,
+        //         result.y_coord,
+        //         result.end_x_coord,
+        //         result.end_y_coord,
+        //         result.real_old,
+        //         result.imag_old,
+        //         result.start_x_coord,
+        //         result.start_y_coord,
+        //         result.x1,
+        //         result.y1,
+        //         result.x2,
+        //         result.y2,
+        //       ];
+        //       span_impedance_re[sp] = temp_array[4];
+        //       span_impedance_im[sp] = temp_array[5];
+        //     })
+        //     .catch((error) => {
+        //       console.log('ERROR (smith_tool.js: arc_smith_points: xfmr): ' + error);
+        //     });
+        // }
 
         //If at original frequency, save and plot the data points
         if (sp == span_res) {
@@ -700,6 +784,7 @@ export async function update_smith_chart() {
 
   //draw the components
   for (i = 2; i < schematic.length; i++) {
+    console.log('drawing schematic');
     newDiv = draw_schematic(i);
     schemEl.appendChild(newDiv);
   }
@@ -707,7 +792,7 @@ export async function update_smith_chart() {
   dataPoints.push({ re: (z0 * Number(real_old)).toFixed(precision), im: (z0 * Number(imag_old)).toFixed(precision) });
 
   let reflection_mag, reflection_phase;
-  [reflection_mag, reflection_phase] = calcOutputValues(real_old, imag_old, temp_array);
+  [reflection_mag, reflection_phase] = await calcOutputValues(real_old, imag_old, temp_array);
 
   //redefine the labels in case z0 has changed
   define_labels();
@@ -807,9 +892,34 @@ export async function update_smith_chart() {
           console.log('ERROR (smith_tool.js: custom markers): ' + error);
         });
     } finally {
-      layout_shapes.push({ type: 'circle', line: { color: 'red' }, x0: x - 0.01, y0: y - 0.01, x1: x + 0.01, y1: y + 0.01 });
+      layout_shapes.push({
+        type: 'circle',
+        line: { color: 'red', width: 5 },
+        x0: x - 0.01,
+        y0: y - 0.01,
+        x1: x + 0.01,
+        y1: y + 0.01,
+      });
       // textbox_trace.push({ x: [x + 0.06], y: [y], text: ["MP" + i], mode: 'text' });
-      textbox_trace.push({ x: [x + 0.06], y: [y], text: [customMarkers[i].name], mode: 'text' });
+      if (x > 0.0) {
+        textbox_trace.push({
+          x: [x - 0.02],
+          y: [y],
+          text: [customMarkers[i].name],
+          textfont: { color: 'darkblue', size: 14 },
+          mode: 'text',
+          textposition: 'top left',
+        });
+      } else {
+        textbox_trace.push({
+          x: [x + 0.02],
+          y: [y],
+          text: [customMarkers[i].name],
+          textfont: { color: 'darkblue', size: 14 },
+          mode: 'text',
+          textposition: 'top right',
+        });
+      }
     }
   }
 
@@ -900,6 +1010,43 @@ export async function update_smith_chart() {
       };
     }
   } else var constQ_trace = {};
+
+  //Add a VSWR circle, which is a new circle centered in the middle of the Smith Chart, with radius defined by VSWR
+  if (const_gamma != 0.0) {
+    //get coord of middle of smith chart (could search in the code but I'm lazy)
+    let center_coord = [];
+    let gamma_rad = [];
+    try {
+      await invoke('find_smith_coord', { re: parseFloat(1), im: parseFloat(0), rotate: false, verbose: false })
+        .then((result) => {
+          center_coord = result;
+        })
+        .catch((error) => {
+          console.log('ERROR (smith_tool.js: gamma center): ' + error);
+        });
+      //get the radius of the VSWR
+      await invoke('find_smith_coord', {
+        re: parseFloat((1.0 + const_gamma) / (1.0 - const_gamma)),
+        im: parseFloat(0),
+        rotate: false,
+        verbose: false,
+      })
+        .then((result) => {
+          gamma_rad = result;
+        })
+        .catch((error) => {
+          console.log('ERROR (smith_tool.js: gamma circle): ' + error);
+        });
+    } finally {
+      x0 = 2 * Number(center_coord[0]) - Number(gamma_rad[0]);
+      x1 = Number(gamma_rad[0]);
+      y0 = Number(gamma_rad[0]);
+      y1 = 2 * Number(center_coord[1]) - Number(gamma_rad[0]);
+      if (color_of_smith_curves == 'colorful') var gamma_color = 'magenta';
+      else var gamma_color = 'magenta';
+      layout_shapes.push({ type: 'circle', line: { color: gamma_color }, x0: x0, y0: y0, x1: x1, y1: y1 });
+    }
+  }
 
   var data = trace.concat(textbox_trace, trace_im_neg, trace_im_pos, trace_real, trace_adm, trace_sus_pos, trace_sus_neg, span_trace, constQ_trace);
 
@@ -1143,7 +1290,7 @@ export async function update_smith_chart() {
       plot_bgcolor: 'rgba(0,0,0,0)',
     };
 
-    var scaledFreq = freq / schematic[0].freq_unit.multiplier;
+    var scaledFreq = freq / settings.freq_multiplier;
     //just show 1 point
     traceS11.y = [];
     traceS11Ph.y = [];
@@ -1180,10 +1327,10 @@ export async function update_smith_chart() {
           traceS11.y.push(20 * Math.log10(reflection_mag));
           traceS11Ph.y.push(reflection_phase);
         }
-        traceS11.x.push((freq + (span_freq * (i - span_res)) / span_res) / schematic[0].freq_unit.multiplier);
-        traceS11Ph.x.push((freq + (span_freq * (i - span_res)) / span_res) / schematic[0].freq_unit.multiplier);
+        traceS11.x.push((freq + (span_freq * (i - span_res)) / span_res) / settings.freq_multiplier);
+        traceS11Ph.x.push((freq + (span_freq * (i - span_res)) / span_res) / settings.freq_multiplier);
       }
-      newSpanFreq = span_freq / schematic[0].freq_unit.multiplier;
+      newSpanFreq = span_freq / settings.freq_multiplier;
     }
 
     sParamLayout.xaxis.range = [scaledFreq - newSpanFreq, scaledFreq + newSpanFreq];
@@ -1218,18 +1365,18 @@ export function define_labels() {
   trace_sus_neg = {};
 
   // console.log(color_of_smith_curves);
-  let color_im, color_real, color_adm, color_sus;
-  if (color_of_smith_curves == 'bland') {
-    color_im = 'rgba(0, 0, 0,0.5)';
-    color_real = 'rgba(0, 0, 0,0.5)';
-    color_adm = 'rgba(0, 0, 0,0.3)';
-    color_sus = 'rgba(0, 0, 0,0.3)';
-  } else {
-    color_im = 'rgba(252, 114, 2,0.5)';
-    color_real = 'rgba(150, 0, 0,0.5)';
-    color_adm = 'rgba(0, 10, 163,0.3)';
-    color_sus = 'rgba(255, 0, 250,0.3)';
-  }
+  // let current_color.im, current_color.real, current_color.adm, current_color.sus;
+  // if (color_of_smith_curves == 'bland') {
+  //   current_color.im = 'rgba(0, 0, 0,0.5)';
+  //   current_color.real = 'rgba(0, 0, 0,0.5)';
+  //   current_color.adm = 'rgba(0, 0, 0,0.3)';
+  //   current_color.sus = 'rgba(0, 0, 0,0.3)';
+  // } else {
+  //   current_color.im = 'rgba(252, 114, 2,0.5)';
+  //   current_color.real = 'rgba(150, 0, 0,0.5)';
+  //   current_color.adm = 'rgba(0, 10, 163,0.3)';
+  //   current_color.sus = 'rgba(255, 0, 250,0.3)';
+  // }
 
   if (show_labels_res) {
     trace_im_pos = {
@@ -1245,7 +1392,7 @@ export function define_labels() {
       ],
       mode: 'text',
       textfont: {
-        color: color_im,
+        color: current_color.im,
         size: fontsize,
       },
     };
@@ -1263,7 +1410,7 @@ export function define_labels() {
       ],
       mode: 'text',
       textfont: {
-        color: color_im,
+        color: current_color.im,
         size: fontsize,
       },
     };
@@ -1285,7 +1432,7 @@ export function define_labels() {
       ],
       mode: 'text',
       textfont: {
-        color: color_real,
+        color: current_color.real,
         size: fontsize,
       },
     };
@@ -1295,16 +1442,16 @@ export function define_labels() {
       x: [0.53, 0.26, -0.07, -0.4, -0.74, -0.88],
       y: [-0.03, -0.03, -0.03, -0.03, -0.03, -0.03, -0.03],
       text: [
-        '<b>' + (1000 / 4 / z0).toFixed(precision) + '</b>m',
-        '<b>' + (1000 / 2 / z0).toFixed(precision) + '</b>m',
-        '<b>' + (1000 / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 2) / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 5) / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 10) / z0).toFixed(precision) + '</b>m',
+        '<b>' + 1000 / 4 / z0 + '</b>m',
+        '<b>' + 1000 / 2 / z0 + '</b>m',
+        '<b>' + 1000 / z0 + '</b>m',
+        '<b>' + (1000 * 2) / z0 + '</b>m',
+        '<b>' + (1000 * 5) / z0 + '</b>m',
+        '<b>' + (1000 * 10) / z0 + '</b>m',
       ],
       mode: 'text',
       textfont: {
-        color: color_adm,
+        color: current_color.adm,
         size: fontsize,
       },
     };
@@ -1315,16 +1462,16 @@ export function define_labels() {
       x: [0.86, 0.53, -0.07, -0.62, -0.89, -0.92],
       y: [0.4, 0.79, 0.97, 0.72, 0.31, 0.15],
       text: [
-        '<b>' + (1000 / 5 / z0).toFixed(precision) + '</b>m',
-        '<b>' + (1000 / 2 / z0).toFixed(precision) + '</b>m',
-        '<b>' + (1000 / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 2) / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 5) / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 10) / z0).toFixed(precision) + '</b>m',
+        '<b>' + 1000 / 5 / z0 + '</b>m',
+        '<b>' + 1000 / 2 / z0 + '</b>m',
+        '<b>' + 1000 / z0 + '</b>m',
+        '<b>' + (1000 * 2) / z0 + '</b>m',
+        '<b>' + (1000 * 5) / z0 + '</b>m',
+        '<b>' + (1000 * 10) / z0 + '</b>m',
       ],
       mode: 'text',
       textfont: {
-        color: color_sus,
+        color: current_color.sus,
         size: fontsize,
       },
     };
@@ -1333,16 +1480,16 @@ export function define_labels() {
       x: [0.86, 0.53, -0.07, -0.62, -0.89, -0.92],
       y: [-0.4, -0.79, -0.97, -0.72, -0.31, -0.15],
       text: [
-        '<b>' + (1000 / 5 / z0).toFixed(precision) + '</b>m',
-        '<b>' + (1000 / 2 / z0).toFixed(precision) + '</b>m',
-        '<b>' + (1000 / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 2) / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 5) / z0).toFixed(precision) + '</b>m',
-        '<b>' + ((1000 * 10) / z0).toFixed(precision) + '</b>m',
+        '<b>' + 1000 / 5 / z0 + '</b>m',
+        '<b>' + 1000 / 2 / z0 + '</b>m',
+        '<b>' + 1000 / z0 + '</b>m',
+        '<b>' + (1000 * 2) / z0 + '</b>m',
+        '<b>' + (1000 * 5) / z0 + '</b>m',
+        '<b>' + (1000 * 10) / z0 + '</b>m',
       ],
       mode: 'text',
       textfont: {
-        color: color_sus,
+        color: current_color.sus,
         size: fontsize,
       },
     };

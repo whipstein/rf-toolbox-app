@@ -8,13 +8,13 @@ import {
   toggle_circles_res,
 } from './assets/js/draw.js';
 import { updateFromDom } from './assets/js/util.js';
-import { update_constQ, update_vswr } from './assets/js/defaults.js';
+import { update_constQ, update_vswr, update_const_gamma } from './assets/js/defaults.js';
 import { createCustomZModal, checkCustomZValid } from './assets/js/custom.js';
 
 let modeSelEl, impSelEl, freqEl, freqSelEl, spanEl, spanSelEl, z0El, erEl;
 let seriesCapEl, shuntCapEl, seriesIndEl, shuntIndEl, seriesResEl, shuntResEl, tlineEl, openStubEl, shortStubEl, xfmrEl, rlcEl, customZEl;
 let zoomEl, showLabelsEl, toggleLabelsAdmittanceEl, toggleLabelsResistanceEl, toggleCirclesAdmEl, toggleCirclesResEl;
-let vswrCircleEl, qCircleEl, toggleColorSchemeEl;
+let vswrCircleEl, qCircleEl, gammaCircleEl, toggleColorSchemeEl;
 
 window.addEventListener('DOMContentLoaded', () => {
   modeSelEl = document.getElementById('mode_sel');
@@ -45,6 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
   toggleCirclesResEl = document.getElementById('toggle_circles_res');
   vswrCircleEl = document.getElementById('vswr_circle');
   qCircleEl = document.getElementById('q_circle');
+  gammaCircleEl = document.getElementById('gamma_circle');
   toggleColorSchemeEl = document.getElementById('toggle_color_scheme');
 
   modeSelEl.addEventListener('change', (e) => {
@@ -156,15 +157,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
   vswrCircleEl.addEventListener('change', (e) => {
     e.preventDefault();
-    // vswr = Number(vswrCircleEl.value);
-    // update_smith_chart();
     update_vswr(vswrCircleEl.value);
   });
   qCircleEl.addEventListener('change', (e) => {
     e.preventDefault();
-    // constQ = Number(qCircleEl.value);
-    // update_smith_chart();
     update_constQ(Number(qCircleEl.value));
+  });
+  gammaCircleEl.addEventListener('change', (e) => {
+    e.preventDefault();
+    update_const_gamma(Number(gammaCircleEl.value));
   });
   toggleColorSchemeEl.addEventListener('change', (e) => {
     e.preventDefault();
