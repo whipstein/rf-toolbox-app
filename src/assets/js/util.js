@@ -57,6 +57,7 @@ export function freqUnitToText(multiplier) {
 }
 
 export let fileDom = document.getElementById('file');
+export let domModeSel = document.getElementById('mode_sel');
 export let domImpSel = document.getElementById('imp_sel');
 export let domFreq = document.getElementById('freq');
 export let domFreqSel = document.getElementById('freq_sel');
@@ -126,11 +127,11 @@ export function updateFromDom() {
   schematic[0].er = Number(domEr.value);
 
   //dropdowns
-  if (domImpSel.value == 'diff' && schematic[0] == 'se') {
+  if (domModeSel.value == 'diff' && schematic[0].imp == 'se') {
     console.log('se -> diff');
     schematic[0].imp = 'diff';
     schematic[1].abs = [schematic[1].abs[0] * 2, schematic[1].abs[1] * 2];
-  } else if (domImpSel.value == 'se' && schematic[0] == 'diff') {
+  } else if (domModeSel.value == 'se' && schematic[0].imp == 'diff') {
     console.log('diff -> se');
     schematic[0].imp = 'se';
     schematic[1].abs = [schematic[1].abs[0] / 2, schematic[1].abs[1] / 2];

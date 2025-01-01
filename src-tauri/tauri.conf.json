@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "rf-toolbox-app",
-  "version": "0.2.0",
-  "identifier": "com.rf-toolbox-app.app",
+  "productName": "RF Toolbox",
+  "version": "0.3.0",
+  "identifier": "com.daboyz.rftoolbox",
   "build": {
     "frontendDist": "../src"
   },
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "rf-toolbox-app",
+        "title": "RF Toolbox",
         "width": 300,
         "height": 300,
         "devtools": false

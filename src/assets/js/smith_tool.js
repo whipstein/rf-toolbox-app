@@ -43,8 +43,10 @@ export function clicked_cell(type) {
     schematic.push({ type: 'so', line_length: 1e-6, abs: [1], line_zo: 50, unit: ['um'], real: 0, imaginary: 0, tol: 0 });
   } else if (type == 'xfmr') {
     schematic.push({ type: 'xfmr', real: 0, imaginary: 0, abs: [20, 10, 10, 0.4], unit: ['Q', 'pH', 'pH', 'K'], tol: 0 });
-  } else if (type == 'rlc') {
-    schematic.push({ type: 'rlc', real: 0, imaginary: 0, abs: [1, 10, 20], unit: ['Ω', 'pH', 'fF'], tol: 0 });
+  } else if (type == 'prlc') {
+    schematic.push({ type: 'prlc', real: 0, imaginary: 0, abs: [1, 10, 20], unit: ['Ω', 'pH', 'fF'], tol: 0 });
+  } else if (type == 'srlc') {
+    schematic.push({ type: 'srlc', real: 0, imaginary: 0, abs: [1, 10, 20], unit: ['Ω', 'pH', 'fF'], tol: 0 });
   } else if (type == 'customZ') {
     schematic.push({
       type: 'customZ',
@@ -79,7 +81,8 @@ export function update_schem_abs(target_num, obj, absCounter) {
       break;
     case 'rc':
     case 'rl':
-    case 'rlc':
+    case 'prlc':
+    case 'srlc':
     case 'bb':
     case 'sr':
     case 'pr':
@@ -425,7 +428,7 @@ async function draw_smith_curves(
             .catch((error) => {
               console.log('ERROR (smith_tool.js: arc_smith_points: series): ' + error);
             });
-        } else if (schematic[i].type[0] == 'p' || schematic[i].type == 'rlc' || schematic[i].type == 'rc' || schematic[i].type == 'rl') {
+        } else if (schematic[i].type[0] == 'p' || schematic[i].type == 'rc' || schematic[i].type == 'rl') {
           //For parallel elements plotted on rotated graph....
           start_impedance[0] = span_impedance_re[sp];
           start_impedance[1] = span_impedance_im[sp];

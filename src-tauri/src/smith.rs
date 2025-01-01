@@ -557,7 +557,7 @@ pub fn calc_smith_arc(
             Orientation::Shunt,
         )
         .calc_arc(freq_int, zin, z0, npts, verbose)),
-        "rlc" => Ok(Rlc::new(
+        "prlc" => Ok(Rlc::new(
             vals[0],
             vals[1],
             vals[2],
@@ -567,6 +567,20 @@ pub fn calc_smith_arc(
             0.0,
             0.0,
             0.0,
+            Orientation::Shunt,
+        )
+        .calc_arc(freq_int, zin, z0, npts, verbose)),
+        "srlc" => Ok(Rlc::new(
+            vals[0],
+            vals[1],
+            vals[2],
+            Unit::from_str(units[0]).unwrap(),
+            Unit::from_str(units[1]).unwrap(),
+            Unit::from_str(units[2]).unwrap(),
+            0.0,
+            0.0,
+            0.0,
+            Orientation::Series,
         )
         .calc_arc(freq_int, zin, z0, npts, verbose)),
         "bb" => {

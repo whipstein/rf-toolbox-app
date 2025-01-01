@@ -2813,7 +2813,7 @@ dependencies = [
 
 [[package]]
 name = "rf-toolbox-app"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "float-cmp",
  "num-complex",

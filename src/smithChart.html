@@ -54,21 +54,22 @@
         </div>
 
         <!-- Settings Section -->
-        <div class="row">
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Source Impedance
-                Conversion &plusmn;</span>
-              <select class="form-select" id="mode_sel" autocomplete="off">
-                <option value='se'>Single-Ended</option>
-                <option value='diff' selected>Differential</option>
-              </select>
+        <div id="settings">
+          <div class="row">
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Source Impedance
+                  Conversion</span>
+                <select class="form-select" id="mode_sel" autocomplete="off">
+                  <option value='se'>Single-Ended</option>
+                  <option value='diff' selected>Differential</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div class="col-lg">
-            <div class="input-group mb-2">
+            <div class="col-lg">
+              <!-- <div class="input-group mb-2">
               <span class="input-group-text inputGroupmw">Source Impedance
-                Format &plusmn;</span>
+                Format</span>
               <select class="form-select" id="imp_sel" autocomplete="off">
                 <option value='zri' selected>Z Re/Im</option>
                 <option value='yri'>Y Re/Im</option>
@@ -76,225 +77,241 @@
                 <option value='gma'>Γ Mag/Ang</option>
                 <option value='rc'>RC</option>
               </select>
+            </div> -->
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Frequency</span>
-              <input class="form-control" value="280" id="freq"
-                autocomplete="off">
-              <select class="form-select" id="freq_sel" autocomplete="off">
-                <option value='Hz'>Hz</option>
-                <option value='KHz'>KHz</option>
-                <option value='MHz'>MHz</option>
-                <option value='GHz' selected>GHz</option>
-                <option value='THz'>THz</option>
-              </select>
+          <div class="row">
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Frequency</span>
+                <input class="form-control" value="280" id="freq"
+                  autocomplete="off">
+                <select class="form-select" id="freq_sel" autocomplete="off">
+                  <option value='Hz'>Hz</option>
+                  <option value='KHz'>KHz</option>
+                  <option value='MHz'>MHz</option>
+                  <option value='GHz' selected>GHz</option>
+                  <option value='THz'>THz</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Frequency span
+                  &plusmn;</span>
+                <input value="0" id="span" class="form-control"
+                  autocomplete="off">
+                <select class="form-select" id="span_sel" autocomplete="off">
+                  <option value='Hz'>Hz</option>
+                  <option value='KHz'>KHz</option>
+                  <option value='MHz'>MHz</option>
+                  <option value='GHz' selected>GHz</option>
+                  <option value='THz'>THz</option>
+                </select>
+              </div>
             </div>
           </div>
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Frequency span
-                &plusmn;</span>
-              <input value="0" id="span" class="form-control"
-                autocomplete="off">
-              <select class="form-select" id="span_sel" autocomplete="off">
-                <option value='Hz'>Hz</option>
-                <option value='KHz'>KHz</option>
-                <option value='MHz'>MHz</option>
-                <option value='GHz' selected>GHz</option>
-                <option value='THz'>THz</option>
-              </select>
+          <div class="row">
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Chart
+                  Z<sub>0</sub></span>
+                <input type="number" value="50" id="z0" class="form-control"
+                  autocomplete="off">
+                <span class="input-group-text">Ω</span>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Characteristic
-                Impedance</span>
-              <input type="number" value="50" id="z0" class="form-control"
-                autocomplete="off">
-              <span class="input-group-text">Ω</span>
-            </div>
-          </div>
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Permittivity
-                e<small>eff</small></span>
-              <input type="number" value="1" id="er" class="form-control"
-                data-bs-toggle="modal" data-bs-target="#permModal"
-                autocomplete="off">
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span
+                  class="input-group-text inputGroupmw">ε<sub>eff</sub></span>
+                <input type="number" value="1" id="er" class="form-control"
+                  data-bs-toggle="modal" data-bs-target="#permModal"
+                  autocomplete="off">
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Calculations -->
-        <div class="row mt-3">
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Impedance</span>
-              <output id="current_impedance"
-                class="form-control bg-navy text-white"></output>
+        <div id="calculations">
+          <div class="row mt-3">
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Impedance</span>
+                <output id="current_impedance"
+                  class="form-control bg-navy text-white"></output>
+              </div>
+            </div>
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Admittance</span>
+                <output id="current_admittance"
+                  class="form-control bg-navy text-white"></output>
+              </div>
             </div>
           </div>
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Admittance</span>
-              <output id="current_admittance"
-                class="form-control bg-navy text-white"></output>
+          <div class="row">
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Reflection
+                  Coefficient</span>
+                <output id="current_reflection"
+                  class="form-control bg-navy text-white"></output>
+              </div>
+            </div>
+            <div class="col-lg">
+              <div class="input-group mb-2">
+                <span class="input-group-text inputGroupmw">Reflection
+                  Coefficient</span>
+                <output id="current_reflection_mag"
+                  class="form-control bg-navy text-white"></output>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Reflection
-                Coefficient</span>
-              <output id="current_reflection"
-                class="form-control bg-navy text-white"></output>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="input-group mb-2 ">
+                <span class="input-group-text inputGroupmw">VSWR</span>
+                <output id="vswr_live"
+                  class="form-control bg-navy text-white"></output>
+              </div>
             </div>
-          </div>
-          <div class="col-lg">
-            <div class="input-group mb-2">
-              <span class="input-group-text inputGroupmw">Reflection
-                Coefficient</span>
-              <output id="current_reflection_mag"
-                class="form-control bg-navy text-white"></output>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="input-group mb-2 ">
-              <span class="input-group-text inputGroupmw">VSWR</span>
-              <output id="vswr_live"
-                class="form-control bg-navy text-white"></output>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="input-group mb-2 ">
-              <span class="input-group-text inputGroupmw">S11 (dB)</span>
-              <output id="rl_live"
-                class="form-control bg-navy text-white"></output>
+            <div class="col-lg-6">
+              <div class="input-group mb-2 ">
+                <span class="input-group-text inputGroupmw">S11 (dB)</span>
+                <output id="rl_live"
+                  class="form-control bg-navy text-white"></output>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Schematic Elements -->
-        <div class="row text-center mt-3">
-          <strong>Click below to add a component to your system</strong>
-        </div>
-        <div class="row g-0">
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="series_cap">
-            <p class="m-0">Series Capacitor</p>
-            <svg viewBox="1000 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Series Capacitor" />
-            </svg>
+        <div id="elements">
+          <div class="row text-center mt-3">
+            <strong>Click below to add a component to your system</strong>
           </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="shunt_cap">
-            <p class="m-0">Shunt Capacitor</p>
-            <svg viewBox="500 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Shunt Capacitor" />
-            </svg>
+          <div class="row g-0 justify-content-center">
+            <div
+              class="col-1 schemHover text-center"
+              id="series_cap">
+              <p class="m-0">Series Capacitor</p>
+              <svg viewBox="1100 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Series Capacitor" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="shunt_cap">
+              <p class="m-0">Shunt Capacitor</p>
+              <svg viewBox="600 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Shunt Capacitor" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="series_ind">
+              <p class="m-0">Series Inductor</p>
+              <svg viewBox="2100 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Series Inductor" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="shunt_ind">
+              <p class="m-0">Shunt Inductor</p>
+              <svg viewBox="1600 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Shunt Inductor" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="series_res">
+              <p class="m-0">Series Resistor</p>
+              <svg viewBox="3100 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Series Resistor" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="shunt_res">
+              <p class="m-0">Shunt Resistor</p>
+              <svg viewBox="2600 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Parallel Resistor" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="srlc">
+              <p class="m-0">Series RLC</p>
+              <svg viewBox="7000 0 500 500" width="70">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Series RLC" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="prlc">
+              <p class="m-0">Shunt RLC</p>
+              <svg viewBox="6000 0 500 500" width="70">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Shunt RLC" />
+              </svg>
+            </div>
           </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="series_ind">
-            <p class="m-0">Series Inductor</p>
-            <svg viewBox="2000 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Series Inductor" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="shunt_ind">
-            <p class="m-0">Shunt Inductor</p>
-            <svg viewBox="1500 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Shunt Inductor" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="series_res">
-            <p class="m-0">Series Resistor</p>
-            <svg viewBox="3000 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Series Resistor" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="shunt_res">
-            <p class="m-0">Shunt Resistor</p>
-            <svg viewBox="2500 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Parallel Resistor" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="tline">
-            <p class="m-0">Transmission Line</p>
-            <svg viewBox="3500 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_w_custom.svg#rainbow3"
-                alt="Transmission Line" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="open_stub">
-            <p class="m-0">Open Stub</p>
-            <svg viewBox="4000 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Open Stub" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="short_stub">
-            <p class="m-0">Shorted Stub</p>
-            <svg viewBox="4500 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Open Stub" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-end border-dark"
-            id="xfmr">
-            <p class="m-0">Transformer</p>
-            <svg viewBox="6500 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="Transformer" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-dark"
-            id="rlc">
-            <p class="m-0">RLC</p>
-            <svg viewBox="6000 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_update.svg#rainbow3"
-                alt="RLC" />
-            </svg>
-          </div>
-          <div
-            class="col-1 schemHover text-center border-top border-bottom border-dark"
-            id="custom_z">
-            <p class="m-0">Custom</p>
-            <svg viewBox="6500 0 500 500" width="50">
-              <use xlink:href="assets/svg/elements_w_custom.svg#rainbow3"
-                alt="customZ" />
-            </svg>
+          <div class="row g-0 justify-content-center">
+            <div
+              class="col-1 schemHover text-center"
+              id="xfmr">
+              <p class="m-0">Transformer</p>
+              <svg viewBox="7600 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Transformer" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="tline">
+              <p class="m-0">Transmission Line</p>
+              <svg viewBox="3600 0 300 500" width="70">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Transmission Line" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="open_stub">
+              <p class="m-0">Open Stub</p>
+              <svg viewBox="4100 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Open Stub" />
+              </svg>
+            </div>
+            <div
+              class="col-1 schemHover text-center"
+              id="short_stub">
+              <p class="m-0">Shorted Stub</p>
+              <svg viewBox="4600 0 300 500" width="50">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="Open Stub" />
+              </svg>
+            </div>
+            <!-- <div
+              class="col-1 schemHover text-center"
+              id="custom_z">
+              <p class="m-0">Custom Z</p>
+              <svg viewBox="6600 0 300 500" width="70">
+                <use xlink:href="assets/svg/elements.svg#myelements"
+                  alt="customZ" />
+              </svg>
+            </div> -->
           </div>
         </div>
 

@@ -33,6 +33,7 @@ impl Rlc {
         res_tol: f64,
         ind_tol: f64,
         cap_tol: f64,
+        orientation: Orientation,
     ) -> Self {
         Rlc {
             res,
@@ -44,7 +45,7 @@ impl Rlc {
             res_tol,
             ind_tol,
             cap_tol,
-            orientation: Orientation::Shunt,
+            orientation,
         }
     }
 
@@ -184,11 +185,18 @@ impl Element for Rlc {
     }
 
     fn z(&self, freq: Frequency) -> Complex<f64> {
-        c64(
-            unscale(self.res, &self.res_unit),
-            freq.w() * unscale(self.ind, &self.ind_unit)
-                - 1.0 / (freq.w() * unscale(self.cap, &self.cap_unit)),
-        )
+        if approx_eq!(f64, self.cap, 0_f64, F64Margin::default()) {
+            c64(
+                unscale(self.res, &self.res_unit),
+                freq.w() * unscale(self.ind, &self.ind_unit),
+            )
+        } else {
+            c64(
+                unscale(self.res, &self.res_unit),
+                freq.w() * unscale(self.ind, &self.ind_unit)
+                    - 1.0 / (freq.w() * unscale(self.cap, &self.cap_unit)),
+            )
+        }
     }
 
     fn calc_arc(
@@ -224,8 +232,8 @@ mod tests {
     use crate::rf_utils::{calc_z, comp_c64, comp_f64, comp_vec_f64};
 
     #[test]
-    fn test_rlc() {
-        let testname = "rlc";
+    fn test_rlc_shunt() {
+        let testname = "rlc_shunt";
         let freq = Frequency::new(280.0, Unit::Giga);
         let z0 = 50.0;
         // let zl = c64(1.0, 0.0);
@@ -248,6 +256,7 @@ mod tests {
             0.0,
             0.0,
             0.0,
+            Orientation::Shunt,
         );
 
         let margin = F64Margin::from((1e-12, 1));

@@ -12,7 +12,7 @@ import { update_constQ, update_vswr } from './assets/js/defaults.js';
 import { createCustomZModal, checkCustomZValid } from './assets/js/custom.js';
 
 let modeSelEl, impSelEl, freqEl, freqSelEl, spanEl, spanSelEl, z0El, erEl;
-let seriesCapEl, shuntCapEl, seriesIndEl, shuntIndEl, seriesResEl, shuntResEl, tlineEl, openStubEl, shortStubEl, xfmrEl, rlcEl, customZEl;
+let seriesCapEl, shuntCapEl, seriesIndEl, shuntIndEl, seriesResEl, shuntResEl, tlineEl, openStubEl, shortStubEl, xfmrEl, prlcEl, srlcEl, customZEl;
 let zoomEl, showLabelsEl, toggleLabelsAdmittanceEl, toggleLabelsResistanceEl, toggleCirclesAdmEl, toggleCirclesResEl;
 let vswrCircleEl, qCircleEl, toggleColorSchemeEl;
 
@@ -35,8 +35,9 @@ window.addEventListener('DOMContentLoaded', () => {
   openStubEl = document.getElementById('open_stub');
   shortStubEl = document.getElementById('short_stub');
   xfmrEl = document.getElementById('xfmr');
-  rlcEl = document.getElementById('rlc');
-  customZEl = document.getElementById('custom_z');
+  prlcEl = document.getElementById('prlc');
+  srlcEl = document.getElementById('srlc');
+  // customZEl = document.getElementById('custom_z');
   zoomEl = document.getElementById('inlineCheckbox4');
   showLabelsEl = document.getElementById('inlineCheckbox1');
   toggleLabelsAdmittanceEl = document.getElementById('inlineCheckbox2');
@@ -51,10 +52,10 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     updateFromDom();
   });
-  impSelEl.addEventListener('change', (e) => {
-    e.preventDefault();
-    updateFromDom();
-  });
+  // impSelEl.addEventListener('change', (e) => {
+  //   e.preventDefault();
+  //   updateFromDom();
+  // });
   freqEl.addEventListener('change', (e) => {
     e.preventDefault();
     updateFromDom();
@@ -120,14 +121,18 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     clicked_cell('xfmr');
   });
-  rlcEl.addEventListener('click', (e) => {
+  prlcEl.addEventListener('click', (e) => {
     e.preventDefault();
-    clicked_cell('rlc');
+    clicked_cell('prlc');
   });
-  customZEl.addEventListener('click', (e) => {
+  srlcEl.addEventListener('click', (e) => {
     e.preventDefault();
-    clicked_cell('customZ');
+    clicked_cell('srlc');
   });
+  // customZEl.addEventListener('click', (e) => {
+  //   e.preventDefault();
+  //   clicked_cell('customZ');
+  // });
 
   zoomEl.addEventListener('change', (e) => {
     e.preventDefault();

@@ -51,8 +51,6 @@ export function draw_schematic(i) {
   div.setAttribute('class', 'col-6 col-lg-2 g-0');
   //Add a close button, but can't remove black boxes...
   var innerText = '';
-  // if (schematic[i].type!='bb') div.innerHTML += "<div class=\"rem\" onclick=\"schematic.splice("+i+",1); update_smith_chart()\"><div class=\"dp_txt\">DP"+i+"</div><div class=\"close-button\"></div></div>";
-  // else div.innerHTML += "<div class=\"rem\">DP"+i+"</div>";
   if (schematic[i].type != 'bb')
     innerText +=
       '<div class="row me-2 ms-2" style="height: 26px;"><div class="col"><small>DP' +
@@ -197,11 +195,11 @@ export function draw_schematic(i) {
         ['K', 'H', 'mH', 'uH', 'nH', 'pH'],
       ];
       sch_icon = 'inductor_parallel';
-      sch_svg = 6500;
+      sch_svg = 7500;
       break;
-    case 'rlc':
+    case 'prlc':
       rows_to_create = [['Impedance'], ['abs', 'unit_0'], ['abs', 'unit_1'], ['abs', 'unit_2'], ['tol']];
-      sch_label = 'Inductor w/ ESR';
+      sch_label = 'Shunt RLC';
       sch_imag = true;
       sch_real = true;
       sch_abs = true;
@@ -213,20 +211,34 @@ export function draw_schematic(i) {
       sch_icon = 'black_box';
       sch_svg = 6000;
       break;
+    case 'srlc':
+      rows_to_create = [['Impedance'], ['abs', 'unit_0'], ['abs', 'unit_1'], ['abs', 'unit_2'], ['tol']];
+      sch_label = 'Series RLC';
+      sch_imag = true;
+      sch_real = true;
+      sch_abs = true;
+      unit = [
+        ['mΩ', 'Ω', 'KΩ', 'MΩ'],
+        ['H', 'mH', 'uH', 'nH', 'pH'],
+        ['mF', 'uF', 'nF', 'pF', 'fF'],
+      ];
+      sch_icon = 'black_box';
+      sch_svg = 7000;
+      break;
   }
   // add svg image of element
   if (schematic[i].type == 'customZ' || schematic[i].type == 'bb' || schematic[i].type == 'tl') {
     innerText +=
       '<div class="row"><div class="col"><svg viewBox="' +
       sch_svg +
-      ' 0 500 500"><use xlink:href="assets/svg/elements_w_custom.svg#rainbow3" alt="' +
+      ' 0 500 500"><use xlink:href="assets/svg/elements.svg#myelements" alt="' +
       sch_label +
       '" /></svg></div></div>';
   } else {
     innerText +=
       '<div class="row"><div class="col"><svg viewBox="' +
       sch_svg +
-      ' 0 500 500"><use xlink:href="assets/svg/elements_update.svg#rainbow3" alt="' +
+      ' 0 500 500"><use xlink:href="assets/svg/elements.svg#myelements" alt="' +
       sch_label +
       '" /></svg></div></div>';
   }
@@ -248,13 +260,7 @@ export function draw_schematic(i) {
           '" name="tol" onchange="update_schem_tol(' +
           i +
           ',this)">';
-        // innerText += '<input type="text" class="form-control" id="sch_' + i + '_tol" value="' + schematic[i].tol + '" name="tol">'
         innerText += '<span class="input-group-text">%</span>';
-        // onchangeEl.push({
-        //     el: "sch_" + i + "_tol",
-        //     f: "update_schem_tol",
-        //     args: [i , schematic[i].tol],
-        // });
       } else if (boxType == 'blank-impedance') {
         innerText += '<div class="fst-italic m-auto">&nbsp</div>';
       } else if (boxType == 'Impedance') {
@@ -273,13 +279,6 @@ export function draw_schematic(i) {
           '_btn" data-bs-target="#customZModal" onclick="createCustomZModal(' +
           i +
           ')">Impedance Table</button>';
-        // innerText += '<button type="button" class="btn btn-secondary m-auto" data-bs-toggle="modal" id="sch_' + i + '_btn" data-bs-target="#customZModal">Impedance Table</button>';
-        // clickEl.push = "sch_" + i + "_btn";
-        // onclickEl.push({
-        //     el: "sch_" + i + "_btn",
-        //     f: "createCustomZModal",
-        //     args: [i],
-        // });
       } else if (boxType == 'line_zo') {
         innerText += '<span class="input-group-text">Z₀ = </span>';
         innerText +=
@@ -292,30 +291,16 @@ export function draw_schematic(i) {
           '" onchange="update_schem_abs(' +
           i +
           ',this,0)">';
-        // innerText += '<input type="text" class="form-control" id="sch_' + i + '_val" value=' + schematic[i][boxType] + ' name="' + boxType + '" onchange="console.log(this)">'
-        // innerText += '<input type="text" class="form-control" id="sch_' + i + '_val" value=' + schematic[i][boxType] + ' name="' + boxType + '">'
-        // onchangeEl.push({
-        //     el: "sch_" + i + "_val",
-        //     f: "update_schem_abs",
-        //     args: [i , schematic[i][boxType], 0],
-        // });
       } else if (boxType == 'unit_0' || boxType == 'unit_1' || boxType == 'unit_2' || boxType == 'unit_3') {
         unitIndex = boxType.split('_')[1];
         innerText +=
           '<select class="form-select" id="sch_' + i + '_' + unitIndex + '_span" onchange="updatespan(' + i + ', this, ' + unitIndex + ')">';
-        // innerText += '<select class="form-select" id="sch_' + i + '_' + unitIndex + '_span">'
-        // onchangeEl.push({
-        //     el: "sch_" + i + '_' + unitIndex + "_span",
-        //     f: "updatespan",
-        //     args: [i , "this", unitIndex],
-        // });
         for (ittUnit = 0; ittUnit < unit[unitIndex].length; ittUnit++) {
           if (unit[unitIndex][ittUnit] == schematic[i].unit[unitIndex]) varSelect = 'selected';
           else varSelect = '';
           innerText += '<option value=' + unit[unitIndex][ittUnit] + ' ' + varSelect + '>' + unit[unitIndex][ittUnit] + '</option>';
         }
         innerText += '</select>';
-        // console.log('Unit', schematic[i].unit[unitIndex], innerText);
       } else {
         if (cntC > 0) innerText += '<span class="input-group-text">+</span>';
         innerText +=
@@ -330,14 +315,6 @@ export function draw_schematic(i) {
           ',this,' +
           absCounter +
           ')">';
-        // innerText += '<input type="text" class="form-control inputMW" id="sch_' + i + '_val" value=' + schematic[i][boxType][absCounter] + ' name="' + boxType + '" onchange="console.log(this.name)">'
-        // innerText += '<input type="text" class="form-control inputMW" id="sch_' + i + '_' + absCounter + '_val" value=' + schematic[i][boxType][absCounter] + ' name="' + boxType + '">'
-        // onchangeEl.push({
-        //     el: "sch_" + i + "_" + absCounter + "_val",
-        //     f: "update_schem_abs",
-        //     args: [i , schematic[i][boxType][absCounter], absCounter],
-        // });
-        // innerText += '<input type="text" class="form-control inputMW" value=' + schematic[i][boxType][absCounter] + ' name="' + boxType + '" onkeyup="update_schem_abs(' + i + ',this,' + absCounter + ')">'
         if (cntC > 0) innerText += '<span class="input-group-text ps-2 pe-2">j</span>';
         if (boxType == 'abs') absCounter = absCounter + 1;
       }
