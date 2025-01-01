@@ -8,24 +8,28 @@ use tauri_plugin_clipboard_manager::ClipboardExt;
 pub fn copy_rc(app: AppHandle, r: &str, c: &str, unit: &str) {
     let cunit = Unit::from_str(unit).unwrap();
     let val = format!("{} {}{}", r, c, cunit.to_string());
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn copy_scalar(app: AppHandle, x: &str) {
     let val = format!("{}", x);
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn copy_scalar_w_unit(app: AppHandle, x: &str, unit: &str) {
     let val = format!("{}{}", x, Unit::from_str(unit).unwrap().to_string());
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn copy_complex(app: AppHandle, re: &str, im: &str) {
     let val = format!("{} {}", re, im);
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
@@ -38,6 +42,7 @@ pub fn copy_complex_w_unit(app: AppHandle, re: &str, unit_re: &str, im: &str, un
         im,
         Unit::from_str(unit_im).unwrap().to_string()
     );
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
@@ -47,6 +52,7 @@ pub fn copy_complex_ri(app: AppHandle, re: &str, im: &str) {
         true => format!("{} - {}", re, &im[1..]),
         false => format!("{} + {}", re, &im),
     };
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
@@ -69,6 +75,7 @@ pub fn copy_pi_tee(
         val3,
         Unit::from_str(unit3).unwrap().to_string()
     );
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
@@ -95,6 +102,7 @@ pub fn copy_ccll(
         val4,
         Unit::from_str(unit4).unwrap().to_string()
     );
+    app.clipboard().clear();
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 
