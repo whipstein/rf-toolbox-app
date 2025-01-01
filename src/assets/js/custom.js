@@ -1,6 +1,9 @@
+// import { verbose } from './defaults';
+
 export var lastCustomModal = 0;
 
 export function createCustomZModal(index) {
+  // if (verbose >= 5) console.log('createCustomZModal(index: ' + index + ')');
   var modalTitle = document.getElementById('customZModalTitle');
   var modalBody = document.getElementById('customZModalBody');
   modalTitle.innerHTML = 'Impedance Table for element #' + index;
@@ -14,6 +17,7 @@ export const regexCustomZComma = /[,]/;
 export var customZImpedanceTable = [];
 
 export function checkCustomZValid() {
+  // if (verbose >= 5) console.log('checkCustomZValid(' + ')');
   var warn = document.getElementById('customZValidWarning');
   var textbox = document.getElementById('customZModalBody');
   var saveButton = document.getElementById('saveLUT');
@@ -71,11 +75,13 @@ export function checkCustomZValid() {
 }
 
 export function removeCustom() {
+  // if (verbose >= 5) console.log('removeCustom(' + ')');
   schematic.splice(lastCustomModal, 1);
   update_smith_chart();
 }
 
 export function plotCustomZ() {
+  // if (verbose >= 5) console.log('plotCustomZ(' + ')');
   var x = [];
   var y = [];
   var mag;

@@ -1,5 +1,5 @@
 import { resizedw } from './draw.js';
-import { schematic } from './defaults.js';
+import { schematic, verbose } from './defaults.js';
 import { update_schem_component, update_smith_chart } from './smith_tool.js';
 
 //code to save the state to jsonBin - cool! (and free)
@@ -9,6 +9,7 @@ export var toastList = toastElList.map(function (toastEl) {
 });
 export var saveLocDom = document.getElementById('jsonBinSaveLoc');
 export function saveToJsonBin() {
+  if (verbose >= 5) console.log('saveToJsonBin(' + ')');
   var req = new XMLHttpRequest();
   req.onreadystatechange = () => {
     if (req.readyState == XMLHttpRequest.DONE) {
@@ -25,6 +26,7 @@ export function saveToJsonBin() {
   req.send(JSON.stringify(schematic));
 }
 export function readFromJsonBin(id) {
+  if (verbose >= 5) console.log('readFromJsonBin(id: ' + id + ')');
   var req = new XMLHttpRequest();
   req.onreadystatechange = () => {
     if (req.readyState == XMLHttpRequest.DONE) {
@@ -40,10 +42,12 @@ export function readFromJsonBin(id) {
 }
 
 export function expo(x, f) {
+  if (verbose >= 10) console.log('expo(x: ' + x + ', f: ' + f + ')');
   return Number.parseFloat(x).toExponential(f);
 }
 
 export function freqUnitToText(multiplier) {
+  if (verbose >= 10) console.log('freqUnitToText(multiplier: ' + multiplier + ')');
   if (multiplier == 1) return 'Hz';
   else if (multiplier == 1e3) return 'KHz';
   else if (multiplier == 1e6) return 'MHz';
@@ -62,6 +66,7 @@ export let domZo = document.getElementById('z0');
 export let domEr = document.getElementById('er');
 
 export function readFile() {
+  if (verbose >= 5) console.log('readFile(' + ')');
   var files = fileDom.files;
   var file = files[0];
   var reader = new FileReader();
@@ -75,6 +80,7 @@ export function readFile() {
 }
 
 export function updateFromOldState() {
+  if (verbose >= 5) console.log('updateFromOldState(' + ')');
   //check for old version of file
   for (i = 1; i < schematic.length; i++) {
     if (!Array.isArray(schematic[i].abs)) {
@@ -112,6 +118,7 @@ export function updateFromOldState() {
 }
 
 export function updateFromDom() {
+  if (verbose >= 5) console.log('updateFromDom(' + ')');
   schematic[0].freq = Number(domFreq.value);
   schematic[0].span = Number(domSpan.value);
   z0 = Number(domZo.value);
@@ -119,10 +126,12 @@ export function updateFromDom() {
   schematic[0].er = Number(domEr.value);
 
   //dropdowns
-  if (domImpSel.value == 'diff') {
+  if (domImpSel.value == 'diff' && schematic[0] == 'se') {
+    console.log('se -> diff');
     schematic[0].imp = 'diff';
     schematic[1].abs = [schematic[1].abs[0] * 2, schematic[1].abs[1] * 2];
-  } else if (domImpSel.value == 'se') {
+  } else if (domImpSel.value == 'se' && schematic[0] == 'diff') {
+    console.log('diff -> se');
     schematic[0].imp = 'se';
     schematic[1].abs = [schematic[1].abs[0] / 2, schematic[1].abs[1] / 2];
   }
@@ -144,6 +153,7 @@ export function updateFromDom() {
 }
 
 export function updatespan(sch_num, obj, unitIndex = 0) {
+  if (verbose >= 5) console.log('updatespan(sch_num: ' + sch_num + ', obj: ', obj, ', unitIndex: ' + unitIndex + ')');
   // if ((this_val[this_val.length-2]+this_val[this_val.length-1])=='Hz') {
   // 	if      (this_val == 'Hz') freq_multiplier = 1;
   // 	else if (this_val == 'KHz') freq_multiplier = 1e3;
@@ -167,29 +177,33 @@ export function updatespan(sch_num, obj, unitIndex = 0) {
 }
 
 export function one_over_complex(real, imaginary) {
+  if (verbose >= 10) console.log('one_over_complex(real: ' + real + ', imaginary: ' + imaginary + ')');
   var realn = real / (real * real + imaginary * imaginary);
   var imaginaryn = -imaginary / (real * real + imaginary * imaginary);
   return [realn, imaginaryn];
 }
 
 export function pad(n) {
+  if (verbose >= 10) console.log('pad(n: ' + n + ')');
   return n < 10 ? '0' + n : n;
 }
 
 export function unitTextToNum(unit, freq_here) {
+  if (verbose >= 10) console.log('unitTextToNum(unit: ' + unit + ', freq_here: ' + freq_here + ')');
   if (unit[0] == 'f') return 1e-15;
   else if (unit[0] == 'p') return 1e-12;
   else if (unit[0] == 'n') return 1e-9;
   else if (unit[0] == 'u') return 1e-6;
   else if (unit == 'm') return 1; //tl can have unit of meters
   else if (unit[0] == 'm') return 1e-3; //milli...
-  else if (unit[0] == 'K') return 1e3;
+  else if (unit[0] == 'k') return 1e3;
   else if (unit[0] == 'M') return 1e6;
   else if (unit[0] == 'λ') return 3e8 / (freq_here * Math.sqrt(schematic[0].er));
   else return 1;
 }
 
 export function download2() {
+  if (verbose >= 5) console.log('download2(' + ')');
   var myDate = new Date();
   var date = myDate.getDate();
   var month = myDate.getMonth();

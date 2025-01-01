@@ -1,4 +1,5 @@
-#![allow(dead_code, unused_variables, unused_imports)]
+#![allow(unused)]
+use crate::unit::{get_unit, Unit, UnitType};
 use float_cmp::{approx_eq, F64Margin};
 use num_complex::Complex;
 use serde::ser::{SerializeStruct, Serializer};
@@ -86,38 +87,6 @@ impl Serialize for ResponseReturn {
     }
 }
 
-pub enum Element {
-    Capacitor,
-    Inductor,
-    Resistor,
-    Frequency,
-}
-
-impl FromStr for Element {
-    type Err = Box<dyn Error>;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "c" | "cap" | "capacitor" => Ok(Element::Capacitor),
-            "l" | "ind" | "inductor" => Ok(Element::Inductor),
-            "r" | "res" | "resistor" => Ok(Element::Resistor),
-            "f" | "freq" | "frequency" => Ok(Element::Frequency),
-            _ => Err("Element not recognize".to_string().into()),
-        }
-    }
-}
-
-impl ToString for Element {
-    fn to_string(&self) -> String {
-        match self {
-            Element::Capacitor => "F".to_string(),
-            Element::Inductor => "H".to_string(),
-            Element::Resistor => "Ω".to_string(),
-            Element::Frequency => "Hz".to_string(),
-        }
-    }
-}
-
 pub enum ComplexType {
     ReIm,
     MagAng,
@@ -137,84 +106,6 @@ impl FromStr for ComplexType {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub enum Unit {
-    Tera,
-    Giga,
-    Mega,
-    Kilo,
-    Base,
-    Milli,
-    Micro,
-    Nano,
-    Pico,
-    Femto,
-    Lambda(f64, f64),
-}
-
-impl FromStr for Unit {
-    type Err = Box<dyn Error>;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "tera" | "T" | "THz" | "thz" => Ok(Unit::Tera),
-            "giga" | "G" | "GHz" | "ghz" | "GΩ" => Ok(Unit::Giga),
-            "mega" | "M" | "MHz" | "mhz" | "MΩ" => Ok(Unit::Mega),
-            "kilo" | "k" | "kHz" | "khz" | "kΩ" => Ok(Unit::Kilo),
-            "milli" | "m" | "mΩ" | "mF" | "mH" => Ok(Unit::Milli),
-            "micro" | "u" | "uΩ" | "μΩ" | "uF" | "μF" | "uH" | "μH" | "um" | "μm" => {
-                Ok(Unit::Micro)
-            }
-            "nano" | "n" | "nΩ" | "nF" | "nH" => Ok(Unit::Nano),
-            "pico" | "p" | "pΩ" | "pF" | "pH" => Ok(Unit::Pico),
-            "femto" | "f" | "fΩ" | "fF" | "fH" => Ok(Unit::Femto),
-            "lambda" | "λ" | "wavelength" => Ok(Unit::Lambda(1.0, 1.0)),
-            _ => Ok(Unit::Base),
-        }
-    }
-}
-
-impl ToString for Unit {
-    fn to_string(&self) -> String {
-        match self {
-            Unit::Tera => "T".to_string(),
-            Unit::Giga => "G".to_string(),
-            Unit::Mega => "M".to_string(),
-            Unit::Kilo => "k".to_string(),
-            Unit::Base => "".to_string(),
-            Unit::Milli => "m".to_string(),
-            // Unit::Micro => "μ".to_string(),
-            Unit::Micro => "u".to_string(),
-            Unit::Nano => "n".to_string(),
-            Unit::Pico => "p".to_string(),
-            Unit::Femto => "f".to_string(),
-            Unit::Lambda(_, _) => "λ".to_string(),
-        }
-    }
-}
-
-impl Unit {
-    pub fn scale(&self) -> f64 {
-        match self {
-            Unit::Tera => 1e-12,
-            Unit::Giga => 1e-9,
-            Unit::Mega => 1e-6,
-            Unit::Kilo => 1e-3,
-            Unit::Base => 1.0,
-            Unit::Milli => 1e3,
-            Unit::Micro => 1e6,
-            Unit::Nano => 1e9,
-            Unit::Pico => 1e12,
-            Unit::Femto => 1e15,
-            Unit::Lambda(freq, er) => 3e8 / (freq * er.sqrt()),
-        }
-    }
-
-    pub fn unscale(&self) -> f64 {
-        1.0 / self.scale()
-    }
-}
-
 pub fn gen_complex(re: f64, im: f64, imp: &str) -> Result<Complex<f64>, String> {
     match ComplexType::from_str(imp) {
         Ok(ComplexType::ReIm) => Ok(Complex::new(re, im)),
@@ -222,22 +113,6 @@ pub fn gen_complex(re: f64, im: f64, imp: &str) -> Result<Complex<f64>, String> 
         Ok(ComplexType::Db) => Ok(Complex::from_polar(10_f64.powf(re / 20.0), im * PI / 180.0)),
         Err(_) => Err("ComplexType not recognized".to_string()),
     }
-}
-
-pub fn get_unit(unit: &Unit, elem: &Element) -> String {
-    if *unit == Unit::Micro {
-        return format!("μ{}", elem.to_string());
-    }
-    format!("{}{}", unit.to_string(), elem.to_string())
-}
-
-#[tauri::command(rename_all = "snake_case")]
-pub fn get_unit_scale(unit: &str, freq: f64, er: f64) -> f64 {
-    let mut val = Unit::from_str(unit).unwrap();
-    if val == Unit::Lambda(1.0, 1.0) {
-        val = Unit::Lambda(freq, er);
-    }
-    val.scale()
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -271,7 +146,7 @@ pub fn calc_gamma_from_rc(
     z0: f64,
     freq: f64,
     fscale: &Unit,
-    rscale: &Unit,
+    _rscale: &Unit,
     cscale: &Unit,
 ) -> Complex<f64> {
     let z = 1.0
@@ -287,12 +162,16 @@ pub fn calc_z(gamma: Complex<f64>, z0: f64) -> Complex<f64> {
     z0 * (1.0 + gamma) / (1.0 - gamma)
 }
 
+pub fn calc_z_norm(gamma: Complex<f64>, z0: f64) -> Complex<f64> {
+    calc_z(gamma, z0) / z0
+}
+
 pub fn calc_z_from_rc(
     r: f64,
     c: f64,
     freq: f64,
     fscale: &Unit,
-    rscale: &Unit,
+    _rscale: &Unit,
     cscale: &Unit,
 ) -> Complex<f64> {
     1.0 / Complex::new(
@@ -327,7 +206,7 @@ pub fn calc_impedance(
     z0: f64,
     freq: f64,
     f_scale: &str,
-    r_scale: &str,
+    _r_scale: &str,
     c_scale: &str,
 ) -> Response {
     let freq_unit = Unit::from_str(f_scale).unwrap();
@@ -369,32 +248,32 @@ pub fn calc_impedance(
 }
 
 pub fn comp_c64(
-    calc: Complex<f64>,
-    exemplar: Complex<f64>,
+    calc: &Complex<f64>,
+    exemplar: &Complex<f64>,
     precision: F64Margin,
     test: &str,
     idx: &str,
 ) {
     comp_f64(
-        calc.re,
-        exemplar.re,
+        &(*calc).re,
+        &(*exemplar).re,
         precision,
         test,
         &(idx.to_owned() + ".re"),
     );
     comp_f64(
-        calc.im,
-        exemplar.im,
+        &(*calc).im,
+        &(*exemplar).im,
         precision,
         test,
         &(idx.to_owned() + ".im"),
     );
 }
 
-pub fn comp_f64(calc: f64, exemplar: f64, precision: F64Margin, test: &str, idx: &str) {
+pub fn comp_f64(calc: &f64, exemplar: &f64, precision: F64Margin, test: &str, idx: &str) {
     debug_assert!(
         // approx_eq!(f64, *calc, *exemplar, F64Margin::default()),
-        approx_eq!(f64, calc, exemplar, precision),
+        approx_eq!(f64, *calc, *exemplar, precision),
         " Failed test {} at location {}\n  exemplar: {}\n      calc: {}",
         test,
         idx,
@@ -412,8 +291,8 @@ pub fn comp_vec_f64(
 ) {
     for i in 0..calc.len() {
         comp_f64(
-            calc[i],
-            exemplar[i],
+            &calc[i],
+            &exemplar[i],
             precision,
             test,
             &(idx.to_owned() + "[" + i.to_string().as_str() + "]"),
@@ -502,22 +381,22 @@ mod tests {
         let test_db = gen_complex(db, angdb, "db").unwrap();
 
         comp_c64(
-            test_ri,
-            exemplar[0],
+            &test_ri,
+            &exemplar[0],
             F64Margin::default(),
             "gen_complex()",
             "ri",
         );
         comp_c64(
-            test_ma,
-            exemplar[1],
+            &test_ma,
+            &exemplar[1],
             F64Margin::default(),
             "gen_complex()",
             "ma",
         );
         comp_c64(
-            test_db,
-            exemplar[2],
+            &test_db,
+            &exemplar[2],
             F64Margin::default(),
             "gen_complex()",
             "db",
@@ -526,91 +405,55 @@ mod tests {
 
     #[test]
     fn test_get_unit() {
-        assert_eq!(get_unit(&Unit::Tera, &Element::Capacitor), "TF".to_string());
-        assert_eq!(get_unit(&Unit::Tera, &Element::Inductor), "TH".to_string());
-        assert_eq!(get_unit(&Unit::Tera, &Element::Resistor), "TΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Tera, &Element::Frequency),
-            "THz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Tera, &UnitType::Farad), "TF".to_string());
+        assert_eq!(get_unit(&Unit::Tera, &UnitType::Henry), "TH".to_string());
+        assert_eq!(get_unit(&Unit::Tera, &UnitType::Ohm), "TΩ".to_string());
+        assert_eq!(get_unit(&Unit::Tera, &UnitType::Hz), "THz".to_string());
 
-        assert_eq!(get_unit(&Unit::Giga, &Element::Capacitor), "GF".to_string());
-        assert_eq!(get_unit(&Unit::Giga, &Element::Inductor), "GH".to_string());
-        assert_eq!(get_unit(&Unit::Giga, &Element::Resistor), "GΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Giga, &Element::Frequency),
-            "GHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Giga, &UnitType::Farad), "GF".to_string());
+        assert_eq!(get_unit(&Unit::Giga, &UnitType::Henry), "GH".to_string());
+        assert_eq!(get_unit(&Unit::Giga, &UnitType::Ohm), "GΩ".to_string());
+        assert_eq!(get_unit(&Unit::Giga, &UnitType::Hz), "GHz".to_string());
 
-        assert_eq!(get_unit(&Unit::Mega, &Element::Capacitor), "MF".to_string());
-        assert_eq!(get_unit(&Unit::Mega, &Element::Inductor), "MH".to_string());
-        assert_eq!(get_unit(&Unit::Mega, &Element::Resistor), "MΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Mega, &Element::Frequency),
-            "MHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Mega, &UnitType::Farad), "MF".to_string());
+        assert_eq!(get_unit(&Unit::Mega, &UnitType::Henry), "MH".to_string());
+        assert_eq!(get_unit(&Unit::Mega, &UnitType::Ohm), "MΩ".to_string());
+        assert_eq!(get_unit(&Unit::Mega, &UnitType::Hz), "MHz".to_string());
 
-        assert_eq!(get_unit(&Unit::Kilo, &Element::Capacitor), "kF".to_string());
-        assert_eq!(get_unit(&Unit::Kilo, &Element::Inductor), "kH".to_string());
-        assert_eq!(get_unit(&Unit::Kilo, &Element::Resistor), "kΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Kilo, &Element::Frequency),
-            "kHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Kilo, &UnitType::Farad), "kF".to_string());
+        assert_eq!(get_unit(&Unit::Kilo, &UnitType::Henry), "kH".to_string());
+        assert_eq!(get_unit(&Unit::Kilo, &UnitType::Ohm), "kΩ".to_string());
+        assert_eq!(get_unit(&Unit::Kilo, &UnitType::Hz), "kHz".to_string());
 
-        assert_eq!(
-            get_unit(&Unit::Milli, &Element::Capacitor),
-            "mF".to_string()
-        );
-        assert_eq!(get_unit(&Unit::Milli, &Element::Inductor), "mH".to_string());
-        assert_eq!(get_unit(&Unit::Milli, &Element::Resistor), "mΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Milli, &Element::Frequency),
-            "mHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Milli, &UnitType::Farad), "mF".to_string());
+        assert_eq!(get_unit(&Unit::Milli, &UnitType::Henry), "mH".to_string());
+        assert_eq!(get_unit(&Unit::Milli, &UnitType::Ohm), "mΩ".to_string());
+        assert_eq!(get_unit(&Unit::Milli, &UnitType::Hz), "mHz".to_string());
 
-        assert_eq!(
-            get_unit(&Unit::Micro, &Element::Capacitor),
-            "μF".to_string()
-        );
-        assert_eq!(get_unit(&Unit::Micro, &Element::Inductor), "μH".to_string());
-        assert_eq!(get_unit(&Unit::Micro, &Element::Resistor), "μΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Micro, &Element::Frequency),
-            "μHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Micro, &UnitType::Farad), "μF".to_string());
+        assert_eq!(get_unit(&Unit::Micro, &UnitType::Henry), "μH".to_string());
+        assert_eq!(get_unit(&Unit::Micro, &UnitType::Ohm), "μΩ".to_string());
+        assert_eq!(get_unit(&Unit::Micro, &UnitType::Hz), "μHz".to_string());
 
-        assert_eq!(get_unit(&Unit::Nano, &Element::Capacitor), "nF".to_string());
-        assert_eq!(get_unit(&Unit::Nano, &Element::Inductor), "nH".to_string());
-        assert_eq!(get_unit(&Unit::Nano, &Element::Resistor), "nΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Nano, &Element::Frequency),
-            "nHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Nano, &UnitType::Farad), "nF".to_string());
+        assert_eq!(get_unit(&Unit::Nano, &UnitType::Henry), "nH".to_string());
+        assert_eq!(get_unit(&Unit::Nano, &UnitType::Ohm), "nΩ".to_string());
+        assert_eq!(get_unit(&Unit::Nano, &UnitType::Hz), "nHz".to_string());
 
-        assert_eq!(get_unit(&Unit::Pico, &Element::Capacitor), "pF".to_string());
-        assert_eq!(get_unit(&Unit::Pico, &Element::Inductor), "pH".to_string());
-        assert_eq!(get_unit(&Unit::Pico, &Element::Resistor), "pΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Pico, &Element::Frequency),
-            "pHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Pico, &UnitType::Farad), "pF".to_string());
+        assert_eq!(get_unit(&Unit::Pico, &UnitType::Henry), "pH".to_string());
+        assert_eq!(get_unit(&Unit::Pico, &UnitType::Ohm), "pΩ".to_string());
+        assert_eq!(get_unit(&Unit::Pico, &UnitType::Hz), "pHz".to_string());
 
-        assert_eq!(
-            get_unit(&Unit::Femto, &Element::Capacitor),
-            "fF".to_string()
-        );
-        assert_eq!(get_unit(&Unit::Femto, &Element::Inductor), "fH".to_string());
-        assert_eq!(get_unit(&Unit::Femto, &Element::Resistor), "fΩ".to_string());
-        assert_eq!(
-            get_unit(&Unit::Femto, &Element::Frequency),
-            "fHz".to_string()
-        );
+        assert_eq!(get_unit(&Unit::Femto, &UnitType::Farad), "fF".to_string());
+        assert_eq!(get_unit(&Unit::Femto, &UnitType::Henry), "fH".to_string());
+        assert_eq!(get_unit(&Unit::Femto, &UnitType::Ohm), "fΩ".to_string());
+        assert_eq!(get_unit(&Unit::Femto, &UnitType::Hz), "fHz".to_string());
 
-        assert_eq!(get_unit(&Unit::Base, &Element::Capacitor), "F".to_string());
-        assert_eq!(get_unit(&Unit::Base, &Element::Inductor), "H".to_string());
-        assert_eq!(get_unit(&Unit::Base, &Element::Resistor), "Ω".to_string());
-        assert_eq!(get_unit(&Unit::Base, &Element::Frequency), "Hz".to_string());
+        assert_eq!(get_unit(&Unit::Base, &UnitType::Farad), "F".to_string());
+        assert_eq!(get_unit(&Unit::Base, &UnitType::Henry), "H".to_string());
+        assert_eq!(get_unit(&Unit::Base, &UnitType::Ohm), "Ω".to_string());
+        assert_eq!(get_unit(&Unit::Base, &UnitType::Hz), "Hz".to_string());
     }
 
     #[test]
@@ -648,15 +491,15 @@ mod tests {
         assert_eq!(unscale(val, &Unit::Base), val * 1e0);
 
         comp_f64(
-            scale(1.0, &Unit::Lambda(25e9, 3.4)),
-            3e8 / (25e9 * 3.4_f64.sqrt()),
+            &scale(1.0, &Unit::Lambda(25e9, 3.4)),
+            &(3e8 / (25e9 * 3.4_f64.sqrt())),
             F64Margin::default(),
             "scale()",
             "lambda(25e9, 3.4)",
         );
         comp_f64(
-            unscale(1.0, &Unit::Lambda(43e9, 2.5)),
-            43e9 * 2.5_f64.sqrt() / 3e8,
+            &unscale(1.0, &Unit::Lambda(43e9, 2.5)),
+            &(43e9 * 2.5_f64.sqrt() / 3e8),
             F64Margin::default(),
             "unscale()",
             "lambda(43e9, 2.5)",
@@ -670,7 +513,7 @@ mod tests {
         let gamma = Complex::new(-0.03565151895556114, -0.21968365553602814);
         let test = calc_gamma(z, z0);
 
-        comp_c64(test, gamma, F64Margin::default(), "calc_gamma()", "gamma");
+        comp_c64(&test, &gamma, F64Margin::default(), "calc_gamma()", "gamma");
     }
 
     #[test]
@@ -680,7 +523,7 @@ mod tests {
         let z = Complex::new(13.096841624374102, -131.24096072255193);
         let test = calc_z(gamma, z0);
 
-        comp_c64(test, z, F64Margin::default(), "calc_z()", "z");
+        comp_c64(&test, &z, F64Margin::default(), "calc_z()", "z");
     }
 
     #[test]
@@ -691,7 +534,7 @@ mod tests {
         let c = 5.198818862788317;
         let test = calc_rc(z, f, &Unit::Giga, &Unit::Base, &Unit::Femto);
 
-        comp_f64(test.0, r, F64Margin::default(), "calc_rc()", "r");
-        comp_f64(test.1, c, F64Margin::default(), "calc_rc()", "c");
+        comp_f64(&test.0, &r, F64Margin::default(), "calc_rc()", "r");
+        comp_f64(&test.1, &c, F64Margin::default(), "calc_rc()", "c");
     }
 }

@@ -1,36 +1,23 @@
-#![allow(dead_code, unused_imports)]
 use crate::conjugate::calc_match;
 use crate::copy::{
     copy_ccll, copy_complex, copy_complex_ri, copy_complex_w_unit, copy_pi_tee, copy_rc,
     copy_scalar, copy_scalar_w_unit, paste_impedance,
 };
 use crate::matching::{calc_networks, change_impedance};
-use crate::rf_utils::{
-    calc_gamma, calc_gamma_from_rc, calc_impedance, calc_rc, calc_z, calc_z_from_rc, get_c64_inv,
-    get_unit_scale, unscale, Complex2Return, ComplexReturn, Unit,
-};
-use crate::smith::{arc_smith_points, calc_ri, find_smith_coord};
-use num_complex::Complex;
+use crate::rf_utils::{calc_impedance, get_c64_inv};
+use crate::smith::{arc_smith_points, calc_ri, calc_smith_arc, find_smith_coord_js};
+use crate::unit::get_unit_scale;
 use regex::Regex;
-use serde::ser::{SerializeStruct, Serializer};
-use serde::Serialize;
-use std::collections::HashMap;
-use std::f64::consts::PI;
-use std::f64::INFINITY;
-use std::str::FromStr;
-use tauri::{
-    utils::{config::WindowEffectsConfig, WindowEffect},
-    window::Effect,
-    AppHandle, Manager, WebviewUrl, WebviewWindowBuilder,
-};
-use tauri_plugin_clipboard_manager::ClipboardExt;
-use tauri_plugin_positioner::{Position, WindowExt};
+use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 
 mod conjugate;
 mod copy;
+mod element;
+mod frequency;
 mod matching;
 mod rf_utils;
 mod smith;
+mod unit;
 
 #[tauri::command]
 async fn start_impedance_calculator(app: AppHandle) -> tauri::Result<()> {
@@ -142,6 +129,11 @@ async fn start_smith_chart_tool(app: AppHandle) -> tauri::Result<()> {
         format!("Smith-Chart-Tool-{}", i),
         WebviewUrl::App("smithChart.html".into()),
     )
+    // .setup(|app| {
+    //     let handle = app.handle();
+    //     handle.manage(Mutex::new(SmithState::default()));
+    //     Ok(())
+    // })
     .inner_size(1800.0, 1600.0)
     .build()?;
     // .open_devtools();
@@ -180,7 +172,9 @@ pub fn run() {
             get_unit_scale,
             get_c64_inv,
             arc_smith_points,
-            calc_ri, find_smith_coord
+            calc_ri,
+            calc_smith_arc,
+            find_smith_coord_js
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

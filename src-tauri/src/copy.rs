@@ -1,6 +1,5 @@
-#![allow(dead_code, unused_variables, unused_imports)]
-use crate::rf_utils::{ComplexReturn, Unit};
-use num_complex::Complex;
+#![allow(unused)]
+use crate::unit::Unit;
 use std::str::FromStr;
 use tauri::AppHandle;
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -44,14 +43,10 @@ pub fn copy_complex_w_unit(app: AppHandle, re: &str, unit_re: &str, im: &str, un
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn copy_complex_ri(app: AppHandle, re: &str, im: &str) {
-    let mut val = "".to_string();
-    let im_val: String = im.to_string();
-
-    if &im[0..0] == "-" {
-        val = format!("{} - {}", re, &im[1..]);
-    } else {
-        val = format!("{} + {}", re, &im);
-    }
+    let val = match &im[0..0] == "-" {
+        true => format!("{} - {}", re, &im[1..]),
+        false => format!("{} + {}", re, &im),
+    };
     app.clipboard().write_text(val.to_string()).unwrap();
 }
 

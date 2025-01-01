@@ -1,4 +1,4 @@
-import { color_of_smith_curves, schematic, precision } from './defaults.js';
+import { color_of_smith_curves, schematic, precision, verbose, colors } from './defaults.js';
 import { update_smith_chart } from './smith_tool.js';
 
 export var show_labels_DP = true;
@@ -8,36 +8,43 @@ export var show_circles_adm = true;
 export var show_circles_res = true;
 
 export function toggle_zoom_en() {
+  if (verbose >= 5) console.log('toggle_zoom_en(' + ')');
   var element = document.getElementById('smithChartOverlay');
   element.classList.toggle('noPointerClass');
 }
 
 export function toggle_labels_DP() {
+  if (verbose >= 5) console.log('toggle_labels_DP(' + ')');
   show_labels_DP = !show_labels_DP;
   update_smith_chart();
 }
 
 export function toggle_labels_imag() {
+  if (verbose >= 5) console.log('toggle_labels_imag(' + ')');
   show_labels_adm = !show_labels_adm;
   update_smith_chart();
 }
 
 export function toggle_labels_real() {
+  if (verbose >= 5) console.log('toggle_labels_real(' + ')');
   show_labels_res = !show_labels_res;
   update_smith_chart();
 }
 
 export function toggle_circles_adm() {
+  if (verbose >= 5) console.log('toggle_circles_adm(' + ')');
   show_circles_adm = !show_circles_adm;
   update_smith_chart();
 }
 
 export function toggle_circles_res() {
+  if (verbose >= 5) console.log('toggle_circles_res(' + ')');
   show_circles_res = !show_circles_res;
   update_smith_chart();
 }
 
 export function draw_schematic(i) {
+  if (verbose >= 5) console.log('draw_schematic(i: ' + i + ')');
   //Add the element to the schematic view
   var div = document.createElement('div');
   let unit = [];
@@ -186,8 +193,8 @@ export function draw_schematic(i) {
       unit = [
         ['Q', 'mΩ', 'Ω'],
         ['H', 'mH', 'uH', 'nH', 'pH'],
-        ['H', 'mH', 'uH', 'nH', 'pH', 'n'],
-        ['k', 'H', 'mH', 'uH', 'nH', 'pH'],
+        ['H', 'mH', 'uH', 'nH', 'pH', 'N'],
+        ['K', 'H', 'mH', 'uH', 'nH', 'pH'],
       ];
       sch_icon = 'inductor_parallel';
       sch_svg = 6500;
@@ -343,163 +350,6 @@ export function draw_schematic(i) {
   return div;
 }
 
-// //plots an arc with 'resolution' points between previous impedance x1,y1 and next impedance x2,y2
-// export function arc_smith_points(x1, y1, x2, y2, type, rotate, beta, start_at_qtr_wl, verbose = false) {
-//   if (verbose) {
-//     console.log('');
-//     console.log(
-//       'arc_smith_points(' + x1 + ', ' + y1 + ', ' + x2 + ', ' + y2 + ', ' + type + ', ' + rotate + ', ' + beta + ', ' + start_at_qtr_wl + ')'
-//     );
-//     console.log('z0 = ' + z0.value + ', resolution = ' + resolution);
-//   }
-//   const z0_int = schematic[0].z0;
-//   var x_coord = [];
-//   var y_coord = [];
-//   var end_x_coord = 0;
-//   var end_y_coord = 0;
-//   var temp_array = [];
-//   temp_array = find_smith_coord(x1, y1, rotate);
-//   // try {
-//   //   await invoke('find_smith_coord', { re: parseFloat(x1), im: parseFloat(y1), rotate: rotate, verbose: false })
-//   //     .then((result) => {
-//   //       temp_array.push(result[0]);
-//   //       temp_array.push(result[1]);
-//   //     })
-//   //     .catch((error) => {
-//   //       console.log('ERROR (draw.js: arc_smith_points): ' + error);
-//   //     });
-//   // } finally {
-//   var start_x_coord = temp_array[0];
-//   var start_y_coord = temp_array[1];
-//   var real_old = 0;
-//   var imag_old = 0;
-//   var tan_beta = 0;
-//   var stub_admittance_im = 0;
-
-//   //used for transmission lines and stubs
-//   var line_zo = y2;
-//   var line_length = x2;
-//   var top_real_temp = x1 * line_zo;
-
-//   // try {
-//   for (let i = 0; i < resolution + 1; i++) {
-//     if (type == 'transmission_line') {
-//       tan_beta = Math.tan((beta * i * line_length) / resolution);
-//       var top_imag_temp = ((y1 * z0_int + line_zo * tan_beta) * line_zo) / z0_int;
-//       var bot_real_temp = line_zo - y1 * tan_beta * z0_int;
-//       var bot_imag_temp = x1 * tan_beta * z0_int;
-//       var temp_array = one_over_complex(bot_real_temp, bot_imag_temp);
-//       var bot_real = temp_array[0];
-//       var bot_imag = temp_array[1];
-//       var real_answer = top_real_temp * bot_real - top_imag_temp * bot_imag;
-//       var imag_answer = top_real_temp * bot_imag + top_imag_temp * bot_real;
-//       temp_array = find_smith_coord(real_answer, imag_answer, rotate);
-//       x_coord[i] = temp_array[0];
-//       y_coord[i] = temp_array[1];
-//       // await invoke('find_smith_coord', { re: parseFloat(real_answer), im: parseFloat(imag_answer), rotate: rotate, verbose: false })
-//       //   .then((result) => {
-//       //     x_coord.push(result.re);
-//       //     y_coord.push(result.im);
-//       //   })
-//       //   .catch((error) => {
-//       //     console.log('ERROR (draw.js: arc_smith_points: transmission_line): ' + error);
-//       //   });
-//     } else if (type == 'ss') {
-//       if (start_at_qtr_wl == 0) tan_beta = Math.tan((beta * i * line_length) / resolution);
-//       else tan_beta = Math.tan(beta * (start_at_qtr_wl + (i * (line_length - start_at_qtr_wl)) / resolution));
-//       stub_admittance_im = -1 / ((tan_beta * line_zo) / z0_int);
-//       temp_array = find_smith_coord(x1, y1 + stub_admittance_im, rotate, verbose);
-//       x_coord[i] = temp_array[0];
-//       y_coord[i] = temp_array[1];
-//       // await invoke('find_smith_coord', { re: parseFloat(x1), im: parseFloat(y1 + stub_admittance_im), rotate: rotate, verbose: false })
-//       //   .then((result) => {
-//       //     x_coord.push(result.re);
-//       //     y_coord.push(result.im);
-//       //   })
-//       //   .catch((error) => {
-//       //     console.log('ERROR (draw.js: arc_smith_points: shorted_stub): ' + error);
-//       //   });
-//     } else if (type == 'so') {
-//       tan_beta = Math.tan((beta * i * line_length) / resolution);
-//       stub_admittance_im = tan_beta / (line_zo / z0_int);
-//       temp_array = find_smith_coord(x1, y1 + stub_admittance_im, rotate);
-//       x_coord[i] = temp_array[0];
-//       y_coord[i] = temp_array[1];
-//       // await invoke('find_smith_coord', { re: parseFloat(x1), im: parseFloat(y1 + stub_admittance_im), rotate: rotate, verbose: false })
-//       //   .then((result) => {
-//       //     x_coord.push(result.re);
-//       //     y_coord.push(result.im);
-//       //   })
-//       //   .catch((error) => {
-//       //     console.log('ERROR (draw.js: arc_smith_points: open_stub): ' + error);
-//       //   });
-//     } else {
-//       temp_array = find_smith_coord(x1 + ((x2 - x1) * i) / resolution, y1 + ((y2 - y1) * i) / resolution, rotate);
-//       x_coord[i] = temp_array[0];
-//       y_coord[i] = temp_array[1];
-//       // await invoke('find_smith_coord', {
-//       //   re: parseFloat(x1 + ((x2 - x1) * i) / resolution),
-//       //   im: parseFloat(y1 + ((y2 - y1) * i) / resolution),
-//       //   rotate: rotate,
-//       //   verbose: false,
-//       // })
-//       //   .then((result) => {
-//       //     x_coord.push(result[0]);
-//       //     y_coord.push(result[1]);
-//       //   })
-//       //   .catch((error) => {
-//       //     console.log('ERROR (draw.js: arc_smith_points: other elements): ' + error);
-//       //   });
-//     }
-//   }
-//   // } finally {
-//   if (type == 'transmission_line') {
-//     temp_array = find_smith_coord(real_answer, imag_answer, rotate);
-//     real_old = real_answer;
-//     imag_old = imag_answer;
-//   } else if (type == 'so' || type == 'ss') {
-//     real_old = x1;
-//     imag_old = y1 + stub_admittance_im;
-//   }
-
-//   end_x_coord = temp_array[0];
-//   end_y_coord = temp_array[1];
-
-//   if (verbose) {
-//     console.log('=');
-//     console.log(
-//       '[[' +
-//         x_coord +
-//         '], [' +
-//         y_coord +
-//         '], ' +
-//         end_x_coord +
-//         ', ' +
-//         end_y_coord +
-//         ', ' +
-//         real_old +
-//         ', ' +
-//         imag_old +
-//         ', ' +
-//         start_x_coord +
-//         ', ' +
-//         start_y_coord +
-//         ', ' +
-//         x1 +
-//         ', ' +
-//         y1 +
-//         ', ' +
-//         x2 +
-//         ', ' +
-//         y2 +
-//         ']'
-//     );
-//   }
-//   return [x_coord, y_coord, end_x_coord, end_y_coord, real_old, imag_old, start_x_coord, start_y_coord, x1, y1, x2, y2];
-//   // }
-//   // }
-// }
-
 export var layout = {
   title: 'Circles',
   hovermode: false,
@@ -524,19 +374,20 @@ export var layout = {
 };
 
 export function configure_layout_shapes() {
-  let color_resistance_real, color_resistance_imaginary, color_admittance_real, color_admittance_imaginary;
+  if (verbose >= 5) console.log('configure_layout_shapes(' + ')');
+  // let color_resistance_real, color_resistance_imaginary, color_admittance_real, color_admittance_imaginary;
 
-  if (color_of_smith_curves == 'bland') {
-    color_resistance_real = 'rgba(255, 0, 0, 0.2)';
-    color_resistance_imaginary = 'rgba(255, 0, 0, 0.3)';
-    color_admittance_real = 'rgba(0, 0, 255, 0.2)';
-    color_admittance_imaginary = 'rgba(0, 0, 255, 0.3)';
-  } else {
-    color_resistance_real = 'rgba(150, 0, 0, 0.2)';
-    color_resistance_imaginary = 'rgba(252, 114, 2, 0.3)';
-    color_admittance_real = 'rgba(255, 0, 250, 0.2)';
-    color_admittance_imaginary = 'rgba(0, 10, 163, 0.3)';
-  }
+  // if (color_of_smith_curves == 'bland') {
+  //   color_resistance_real = 'rgba(255, 0, 0, 0.2)';
+  //   color_resistance_imaginary = 'rgba(255, 0, 0, 0.3)';
+  //   color_admittance_real = 'rgba(0, 0, 255, 0.2)';
+  //   color_admittance_imaginary = 'rgba(0, 0, 255, 0.3)';
+  // } else {
+  //   color_resistance_real = 'rgba(150, 0, 0, 0.2)';
+  //   color_resistance_imaginary = 'rgba(252, 114, 2, 0.3)';
+  //   color_admittance_real = 'rgba(255, 0, 250, 0.2)';
+  //   color_admittance_imaginary = 'rgba(0, 10, 163, 0.3)';
+  // }
 
   var shapes_omni = [
     {
@@ -546,7 +397,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 1,
       line: {
-        color: color_resistance_real,
+        color: colors.resistance_real,
       },
     },
   ];
@@ -560,7 +411,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.833,
       line: {
-        color: color_resistance_real,
+        color: colors.resistance_real,
       },
     },
     {
@@ -570,7 +421,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.666,
       line: {
-        color: color_resistance_real,
+        color: colors.resistance_real,
       },
     },
     {
@@ -580,7 +431,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.5,
       line: {
-        color: color_resistance_real,
+        color: colors.resistance_real,
       },
     },
     {
@@ -590,7 +441,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.333,
       line: {
-        color: color_resistance_real,
+        color: colors.resistance_real,
       },
     },
     {
@@ -600,7 +451,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.2,
       line: {
-        color: color_resistance_real,
+        color: colors.resistance_real,
       },
     },
     {
@@ -610,7 +461,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 0.0909,
       line: {
-        color: color_resistance_real,
+        color: colors.resistance_real,
       },
     },
   ];
@@ -624,7 +475,7 @@ export function configure_layout_shapes() {
       x1: -1,
       y1: 0.8,
       line: {
-        color: color_admittance_real,
+        color: colors.admittance_real,
       },
     },
     {
@@ -634,7 +485,7 @@ export function configure_layout_shapes() {
       x1: -1,
       y1: 0.666,
       line: {
-        color: color_admittance_real,
+        color: colors.admittance_real,
       },
     },
     {
@@ -644,7 +495,7 @@ export function configure_layout_shapes() {
       x1: 0,
       y1: 0.5,
       line: {
-        color: color_admittance_real,
+        color: colors.admittance_real,
       },
     },
     {
@@ -654,7 +505,7 @@ export function configure_layout_shapes() {
       x1: -0.333,
       y1: 0.333,
       line: {
-        color: color_admittance_real,
+        color: colors.admittance_real,
       },
     },
     {
@@ -664,7 +515,7 @@ export function configure_layout_shapes() {
       x1: -0.666,
       y1: 0.166,
       line: {
-        color: color_admittance_real,
+        color: colors.admittance_real,
       },
     },
     {
@@ -674,7 +525,7 @@ export function configure_layout_shapes() {
       x1: -0.818,
       y1: 0.0909,
       line: {
-        color: color_admittance_real,
+        color: colors.admittance_real,
       },
     },
   ];
@@ -688,7 +539,7 @@ export function configure_layout_shapes() {
       x1: 1.1,
       y1: 0.2,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -698,7 +549,7 @@ export function configure_layout_shapes() {
       x1: 1.2,
       y1: 0.4,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -708,7 +559,7 @@ export function configure_layout_shapes() {
       x1: 1.5,
       y1: 1,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -718,7 +569,7 @@ export function configure_layout_shapes() {
       x1: 2,
       y1: 2,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -728,7 +579,7 @@ export function configure_layout_shapes() {
       x1: 3,
       y1: 4,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -738,7 +589,7 @@ export function configure_layout_shapes() {
       x1: 6,
       y1: 10,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
 
@@ -750,7 +601,7 @@ export function configure_layout_shapes() {
       x1: 1.1,
       y1: -0.2,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -760,7 +611,7 @@ export function configure_layout_shapes() {
       x1: 1.2,
       y1: -0.4,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -770,7 +621,7 @@ export function configure_layout_shapes() {
       x1: 1.5,
       y1: -1,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -780,7 +631,7 @@ export function configure_layout_shapes() {
       x1: 2,
       y1: -2,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -790,7 +641,7 @@ export function configure_layout_shapes() {
       x1: 3,
       y1: -4,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
     {
@@ -800,7 +651,7 @@ export function configure_layout_shapes() {
       x1: 6,
       y1: -10,
       line: {
-        color: color_resistance_imaginary,
+        color: colors.resistance_imaginary,
       },
     },
   ];
@@ -814,7 +665,7 @@ export function configure_layout_shapes() {
       x1: -0.9,
       y1: 0.2,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -824,7 +675,7 @@ export function configure_layout_shapes() {
       x1: -0.8,
       y1: 0.4,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -834,7 +685,7 @@ export function configure_layout_shapes() {
       x1: -0.5,
       y1: 1,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -844,7 +695,7 @@ export function configure_layout_shapes() {
       x1: -0,
       y1: 2,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -854,7 +705,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: 4,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -864,7 +715,7 @@ export function configure_layout_shapes() {
       x1: 4,
       y1: 10,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     //negative
@@ -875,7 +726,7 @@ export function configure_layout_shapes() {
       x1: -0.9,
       y1: -0.2,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -885,7 +736,7 @@ export function configure_layout_shapes() {
       x1: -0.8,
       y1: -0.4,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -895,7 +746,7 @@ export function configure_layout_shapes() {
       x1: -0.5,
       y1: -1,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -905,7 +756,7 @@ export function configure_layout_shapes() {
       x1: -0,
       y1: -2,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -915,7 +766,7 @@ export function configure_layout_shapes() {
       x1: 1,
       y1: -4,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
     {
@@ -925,7 +776,7 @@ export function configure_layout_shapes() {
       x1: 4,
       y1: -10,
       line: {
-        color: color_admittance_imaginary,
+        color: colors.admittance_imaginary,
       },
     },
   ];
@@ -939,5 +790,6 @@ export function configure_layout_shapes() {
 }
 
 export function resizedw() {
+  if (verbose >= 5) console.log('resizedw(' + ')');
   update_smith_chart();
 }

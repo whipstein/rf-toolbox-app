@@ -1,6 +1,7 @@
-import { dataPoints } from './defaults.js';
+import { dataPoints, verbose } from './defaults.js';
 
 export function addCustomMarker() {
+  if (verbose >= 5) console.log('addCustomMarker(' + ')');
   var real = document.getElementById('customMarkerRe').value;
   var imaginary = document.getElementById('customMarkerIm').value;
   var name = document.getElementById('customMarkerName').value;
@@ -27,6 +28,7 @@ export function addCustomMarker() {
 }
 
 export function delCustomMarker(i) {
+  if (verbose >= 5) console.log('delCustomMarker(i: ' + i + ')');
   customMarkers.splice(i, 1);
   update_smith_chart();
 }
@@ -35,6 +37,7 @@ export function delCustomMarker(i) {
 //#1 - Custom impedances that the user has added
 //#2 - Impedance at each Data Point (DP)
 export function drawMakerTable() {
+  if (verbose >= 5) console.log('drawMakerTable(' + ')');
   var table = document.getElementById('customMarkerTable');
   var inner = "<table class='table table-striped table-sm'><tr><th>Real</th><th>Imaginary</th><th>Name</th><th></th></tr>";
   inner +=

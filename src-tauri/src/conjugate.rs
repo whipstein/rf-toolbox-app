@@ -1,8 +1,8 @@
-use crate::rf_utils::{calc_rc, calc_z, gen_complex, get_unit, ComplexReturn, Element, Unit};
+#![allow(unused)]
+use crate::rf_utils::{calc_rc, calc_z, gen_complex, ComplexReturn};
+use crate::unit::{get_unit, Unit, UnitType};
 use float_cmp::F64Margin;
 use num_complex::Complex;
-use std::error::Error;
-use std::f64::consts::PI;
 use std::str::FromStr;
 
 #[derive(serde::Serialize, Default, Debug, PartialEq)]
@@ -96,9 +96,9 @@ pub fn calc_match(
             c: cs,
             z0: z0,
             freq: freq,
-            freq_unit: get_unit(&freq_unit, &Element::Frequency),
-            res_unit: get_unit(&Unit::Base, &Element::Resistor),
-            cap_unit: get_unit(&cap_unit, &Element::Capacitor),
+            freq_unit: get_unit(&freq_unit, &UnitType::Hz),
+            res_unit: get_unit(&Unit::Base, &UnitType::Ohm),
+            cap_unit: get_unit(&cap_unit, &UnitType::Farad),
         },
         load: ImpedanceReturn {
             gamma: ComplexReturn {
@@ -113,9 +113,9 @@ pub fn calc_match(
             c: cl,
             z0: z0,
             freq: freq,
-            freq_unit: get_unit(&freq_unit, &Element::Frequency),
-            res_unit: get_unit(&Unit::Base, &Element::Resistor),
-            cap_unit: get_unit(&cap_unit, &Element::Capacitor),
+            freq_unit: get_unit(&freq_unit, &UnitType::Hz),
+            res_unit: get_unit(&Unit::Base, &UnitType::Ohm),
+            cap_unit: get_unit(&cap_unit, &UnitType::Farad),
         },
     })
 }
@@ -183,85 +183,85 @@ mod tests {
         .unwrap();
 
         comp_f64(
-            test.k,
-            exemplar.k,
+            &test.k,
+            &exemplar.k,
             F64Margin::default(),
             "calc_match()",
             "k",
         );
         comp_f64(
-            test.b1,
-            exemplar.b1,
+            &test.b1,
+            &exemplar.b1,
             F64Margin::default(),
             "calc_match()",
             "b1",
         );
         comp_f64(
-            test.b2,
-            exemplar.b2,
+            &test.b2,
+            &exemplar.b2,
             F64Margin::default(),
             "calc_match()",
             "b2",
         );
         comp_f64(
-            test.mag,
-            exemplar.mag,
+            &test.mag,
+            &exemplar.mag,
             F64Margin::default(),
             "calc_match()",
             "mag",
         );
         comp_f64(
-            test.src.gamma.re,
-            exemplar.src.gamma.re,
+            &test.src.gamma.re,
+            &exemplar.src.gamma.re,
             F64Margin::default(),
             "calc_match()",
             "src.gamma.re",
         );
         comp_f64(
-            test.src.gamma.im,
-            exemplar.src.gamma.im,
+            &test.src.gamma.im,
+            &exemplar.src.gamma.im,
             F64Margin::default(),
             "calc_match()",
             "src.gamma.im",
         );
         comp_f64(
-            test.src.z.re,
-            exemplar.src.z.re,
+            &test.src.z.re,
+            &exemplar.src.z.re,
             F64Margin::default(),
             "calc_match()",
             "src.z.re",
         );
         comp_f64(
-            test.src.z.im,
-            exemplar.src.z.im,
+            &test.src.z.im,
+            &exemplar.src.z.im,
             F64Margin::default(),
             "calc_match()",
             "src.z.im",
         );
         comp_f64(
-            test.src.r,
-            exemplar.src.r,
+            &test.src.r,
+            &exemplar.src.r,
             F64Margin::default(),
             "calc_match()",
             "src.r",
         );
         comp_f64(
-            test.src.c,
-            exemplar.src.c,
+            &test.src.c,
+            &exemplar.src.c,
             F64Margin::default(),
             "calc_match()",
             "src.c",
         );
         comp_f64(
-            test.src.z0,
-            exemplar.src.z0,
+            &test.src.z0,
+            &exemplar.src.z0,
             F64Margin::default(),
             "calc_match()",
             "src.z0",
         );
         comp_f64(
-            test.src.freq,
-            exemplar.src.freq,
+            &test.src.freq,
+            &exemplar.src.freq,
             F64Margin::default(),
             "calc_match()",
             "src.freq",
@@ -270,57 +270,57 @@ mod tests {
         assert_eq!(test.src.res_unit, exemplar.src.res_unit);
         assert_eq!(test.src.cap_unit, exemplar.src.cap_unit);
         comp_f64(
-            test.load.gamma.re,
-            exemplar.load.gamma.re,
+            &test.load.gamma.re,
+            &exemplar.load.gamma.re,
             F64Margin::default(),
             "calc_match()",
             "load.gamma.re",
         );
         comp_f64(
-            test.load.gamma.im,
-            exemplar.load.gamma.im,
+            &test.load.gamma.im,
+            &exemplar.load.gamma.im,
             F64Margin::default(),
             "calc_match()",
             "load.gamma.im",
         );
         comp_f64(
-            test.load.z.re,
-            exemplar.load.z.re,
+            &test.load.z.re,
+            &exemplar.load.z.re,
             F64Margin::default(),
             "calc_match()",
             "load.z.re",
         );
         comp_f64(
-            test.load.z.im,
-            exemplar.load.z.im,
+            &test.load.z.im,
+            &exemplar.load.z.im,
             F64Margin::default(),
             "calc_match()",
             "load.z.im",
         );
         comp_f64(
-            test.load.r,
-            exemplar.load.r,
+            &test.load.r,
+            &exemplar.load.r,
             F64Margin::default(),
             "calc_match()",
             "load.r",
         );
         comp_f64(
-            test.load.c,
-            exemplar.load.c,
+            &test.load.c,
+            &exemplar.load.c,
             F64Margin::default(),
             "calc_match()",
             "load.c",
         );
         comp_f64(
-            test.load.z0,
-            exemplar.load.z0,
+            &test.load.z0,
+            &exemplar.load.z0,
             F64Margin::default(),
             "calc_match()",
             "load.z0",
         );
         comp_f64(
-            test.load.freq,
-            exemplar.load.freq,
+            &test.load.freq,
+            &exemplar.load.freq,
             F64Margin::default(),
             "calc_match()",
             "load.freq",

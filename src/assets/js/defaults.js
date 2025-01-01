@@ -1,3 +1,5 @@
+export const verbose = 2;
+
 //get dom elements
 export var vmin_distanceEl = document.getElementById('vmin_distance');
 export var vmax_distanceEl = document.getElementById('vmax_distance');
@@ -17,6 +19,37 @@ export var precision = 3;
 export let onchangeEl = [];
 export let clickEl = [];
 
+var colorList = {
+  bland: {
+    resistance_real: 'rgba(255, 0, 0, 0.1)',
+    resistance_imaginary: 'rgba(255, 0, 0, 0.1)',
+    admittance_real: 'rgba(0, 0, 255, 0.1)',
+    admittance_imaginary: 'rgba(0, 0, 255, 0.1)',
+    im: 'rgba(255, 0, 0, 0.1)',
+    real: 'rgba(255, 0, 0, 0.1)',
+    adm: 'rgba(0, 0, 255, 0.1)',
+    sus: 'rgba(0, 0, 255, 0.1)',
+    vswr: 'limegreen',
+    constQ: 'mediumblue',
+    markers: 'red',
+  },
+  colorful: {
+    resistance_real: 'rgba(150, 0, 0, 0.1)',
+    resistance_imaginary: 'rgba(252, 114, 2, 0.1)',
+    admittance_real: 'rgba(255, 0, 250, 0.1)',
+    admittance_imaginary: 'rgba(0, 10, 163, 0.1)',
+    im: 'rgba(252, 114, 2, 0.1)',
+    real: 'rgba(150, 0, 0, 0.1)',
+    adm: 'rgba(255, 0, 250, 0.1)',
+    sus: 'rgba(0, 10, 163, 0.1)',
+    vswr: 'orangered',
+    constQ: 'mediumblue',
+    markers: 'red',
+  },
+};
+
+export var colors = colorList.bland;
+
 schematic.push({ type: 'raw', imp: 'diff', z0: 50, freq: 280, er: 1, freq_unit: { multiplier: 1e9 }, span: 0.0, span_unit: { multiplier: 1e9 } });
 
 // schematic {
@@ -28,21 +61,24 @@ schematic.push({ type: 'raw', imp: 'diff', z0: 50, freq: 280, er: 1, freq_unit: 
 //    tol: tolerance to use for the element values
 // }
 if (schematic[0].imp == 'diff') {
-  schematic.push({ type: 'bb', real: 1, imaginary: 0, abs: [100, 0], unit: ['null'], tol: 0 });
+  schematic.push({ type: 'bb', real: 1, imaginary: 0, abs: [100, 0], unit: ['diff'], tol: 0 });
 } else {
   schematic.push({ type: 'bb', real: 1, imaginary: 0, abs: [50, 0], unit: ['null'], tol: 0 });
 }
 
 export function update_constQ(q_new) {
+  if (verbose >= 5) console.log('update_constQ(q_new: ' + q_new + ')');
   constQ = q_new;
   update_smith_chart();
 }
 export function update_vswr(vswr_new) {
+  if (verbose >= 5) console.log('update_vswr(vswr_new: ' + vswr_new + ')');
   vswr = vswr_new;
   update_smith_chart();
 }
 
 export function toggle_color_scheme_fn() {
+  if (verbose >= 5) console.log('toggle_color_scheme_fn(' + ')');
   var element = document.getElementById('mainSection');
   var x = document.getElementsByClassName('bg-white');
   if (x.length > 0) {
@@ -57,8 +93,10 @@ export function toggle_color_scheme_fn() {
 
   if (color_of_smith_curves == 'bland') {
     color_of_smith_curves = 'colorful';
+    colors = colorList.colorful;
   } else {
     color_of_smith_curves = 'bland';
+    colors = colorList.bland;
   }
 
   update_smith_chart();
