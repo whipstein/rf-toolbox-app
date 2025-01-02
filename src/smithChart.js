@@ -14,7 +14,7 @@ import { createCustomZModal, checkCustomZValid } from './assets/js/custom.js';
 let modeSelEl, impSelEl, freqEl, freqSelEl, spanEl, spanSelEl, z0El, erEl;
 let seriesCapEl, shuntCapEl, seriesIndEl, shuntIndEl, seriesResEl, shuntResEl, tlineEl, openStubEl, shortStubEl, xfmrEl, prlcEl, srlcEl, customZEl;
 let zoomEl, showLabelsEl, toggleLabelsAdmittanceEl, toggleLabelsResistanceEl, toggleCirclesAdmEl, toggleCirclesResEl;
-let vswrCircleEl, qCircleEl, toggleColorSchemeEl;
+let vswrCircleEl, qCircleEl, toggleColorSchemeEl, toggleTraceIntensityEl;
 
 window.addEventListener('DOMContentLoaded', () => {
   modeSelEl = document.getElementById('mode_sel');
@@ -47,6 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
   vswrCircleEl = document.getElementById('vswr_circle');
   qCircleEl = document.getElementById('q_circle');
   toggleColorSchemeEl = document.getElementById('toggle_color_scheme');
+  toggleTraceIntensityEl = document.getElementById('toggle_trace_intensity');
 
   modeSelEl.addEventListener('change', (e) => {
     e.preventDefault();
@@ -174,5 +175,10 @@ window.addEventListener('DOMContentLoaded', () => {
   toggleColorSchemeEl.addEventListener('change', (e) => {
     e.preventDefault();
     toggle_color_scheme_fn();
+  });
+
+  toggleTraceIntensityEl.addEventListener('change', (e) => {
+    e.preventDefault();
+    toggle_trace_intensity_fn();
   });
 });

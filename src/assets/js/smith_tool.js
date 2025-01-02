@@ -1318,6 +1318,25 @@ async function draw_vswr_plots(
   }
 }
 
+export function update_smith_background(data) {
+  var PlLayout = {
+    paper_bgcolor: 'rgba(255,255,255,0.2)',
+    plot_bgcolor: 'rgba(255,255,255,0.0)',
+    showlegend: false,
+    margin: layout.margin,
+    height: exWidth,
+    width: exWidth,
+    hovermode: layout.hovermode,
+    xaxis: layout.xaxis,
+    yaxis: layout.yaxis,
+    shapes: layout.shapes.concat(layout_shapes),
+  };
+  var config = {
+    displayModeBar: false, // this is the line that hides the hover bar.
+  };
+  Plotly.react('myDiv', data, PlLayout, config);
+}
+
 //TODO - A big improvement here would be to separate out the impedance calculation and arc drawing. It should calculate impedances, then calculate points along the arc
 export async function update_smith_chart() {
   if (verbose >= 5) console.log('update_smith_chart(' + ')');

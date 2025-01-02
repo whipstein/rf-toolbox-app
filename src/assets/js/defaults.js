@@ -11,6 +11,7 @@ export var constQ = 0.0;
 export var z0 = 50;
 export var fontsize = 12;
 export var color_of_smith_curves = 'bland';
+export var trace_intensity = 'light';
 //parameters
 export var resolution = 100; // 100; //number of points per arc
 export var span_resolution = 20;
@@ -102,5 +103,80 @@ export function toggle_color_scheme_fn() {
   update_smith_chart();
 }
 
+export function toggle_trace_intensity_fn() {
+  if (verbose >= 5) console.log('toggle_color_scheme_fn(' + ')');
+
+  if (trace_intensity == 'light') {
+    trace_intensity = 'dark';
+    colorList = {
+      bland: {
+        resistance_real: 'rgba(255, 0, 0, 0.3)',
+        resistance_imaginary: 'rgba(255, 0, 0, 0.3)',
+        admittance_real: 'rgba(0, 0, 255, 0.3)',
+        admittance_imaginary: 'rgba(0, 0, 255, 0.3)',
+        im: 'rgba(255, 0, 0, 0.3)',
+        real: 'rgba(255, 0, 0, 0.3)',
+        adm: 'rgba(0, 0, 255, 0.3)',
+        sus: 'rgba(0, 0, 255, 0.3)',
+        vswr: 'limegreen',
+        constQ: 'mediumblue',
+        markers: 'red',
+      },
+      colorful: {
+        resistance_real: 'rgba(150, 0, 0, 0.3)',
+        resistance_imaginary: 'rgba(252, 114, 2, 0.3)',
+        admittance_real: 'rgba(255, 0, 250, 0.3)',
+        admittance_imaginary: 'rgba(0, 10, 163, 0.3)',
+        im: 'rgba(252, 114, 2, 0.3)',
+        real: 'rgba(150, 0, 0, 0.3)',
+        adm: 'rgba(255, 0, 250, 0.3)',
+        sus: 'rgba(0, 10, 163, 0.3)',
+        vswr: 'orangered',
+        constQ: 'mediumblue',
+        markers: 'red',
+      },
+    };
+  } else {
+    trace_intensity = 'light';
+    colorList = {
+      bland: {
+        resistance_real: 'rgba(255, 0, 0, 0.1)',
+        resistance_imaginary: 'rgba(255, 0, 0, 0.1)',
+        admittance_real: 'rgba(0, 0, 255, 0.1)',
+        admittance_imaginary: 'rgba(0, 0, 255, 0.1)',
+        im: 'rgba(255, 0, 0, 0.1)',
+        real: 'rgba(255, 0, 0, 0.1)',
+        adm: 'rgba(0, 0, 255, 0.1)',
+        sus: 'rgba(0, 0, 255, 0.1)',
+        vswr: 'limegreen',
+        constQ: 'mediumblue',
+        markers: 'red',
+      },
+      colorful: {
+        resistance_real: 'rgba(150, 0, 0, 0.1)',
+        resistance_imaginary: 'rgba(252, 114, 2, 0.1)',
+        admittance_real: 'rgba(255, 0, 250, 0.1)',
+        admittance_imaginary: 'rgba(0, 10, 163, 0.1)',
+        im: 'rgba(252, 114, 2, 0.1)',
+        real: 'rgba(150, 0, 0, 0.1)',
+        adm: 'rgba(255, 0, 250, 0.1)',
+        sus: 'rgba(0, 10, 163, 0.1)',
+        vswr: 'orangered',
+        constQ: 'mediumblue',
+        markers: 'red',
+      },
+    };
+  }
+
+  if (color_of_smith_curves == 'bland') {
+    colors = colorList.bland;
+  } else {
+    colors = colorList.colorful;
+  }
+
+  update_smith_chart();
+}
+
 window.schematic = schematic;
 window.toggle_color_scheme_fn = toggle_color_scheme_fn;
+window.toggle_trace_intensity_fn = toggle_trace_intensity_fn;
