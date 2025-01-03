@@ -1041,6 +1041,7 @@ async function draw_vswr_plots(
   reflection_mag,
   reflection_phase,
   config,
+  freq,
   span_freq,
   span_impedance_re,
   span_impedance_im,
@@ -1484,7 +1485,18 @@ export async function update_smith_chart() {
   };
   Plotly.react('myDiv', data, PlLayout, config);
 
-  await draw_vswr_plots(real_old, imag_old, reflection_mag, reflection_phase, config, span_freq, span_impedance_re, span_impedance_im, span_res);
+  await draw_vswr_plots(
+    real_old,
+    imag_old,
+    reflection_mag,
+    reflection_phase,
+    config,
+    freq,
+    span_freq,
+    span_impedance_re,
+    span_impedance_im,
+    span_res
+  );
 }
 
 export function update_schem_tol(i, tol) {
